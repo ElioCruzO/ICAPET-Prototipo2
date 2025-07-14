@@ -20,6 +20,7 @@ const initialContacts: Contact[] = [
     phone: "123-456-7890",
     email: "alice.j@example.com",
     location: "New York, USA",
+    cargo: "Project Manager",
     interactions: [
       { id: "i1", date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), notes: "Initial meeting, discussed project scope." },
       { id: "i2", date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), notes: "Follow-up call, agreed on terms." },
@@ -31,6 +32,7 @@ const initialContacts: Contact[] = [
     phone: "098-765-4321",
     email: "bob.w@example.com",
     location: "London, UK",
+    cargo: "Lead Developer",
     interactions: [{ id: "i3", date: new Date().toISOString(), notes: "Sent invoice for Q2." }],
   },
 ];

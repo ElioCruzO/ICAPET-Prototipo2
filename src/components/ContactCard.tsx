@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Mail, Phone, MapPin, User } from 'lucide-react';
+import { Mail, Phone, MapPin, Briefcase } from 'lucide-react';
 import type { Contact } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -23,6 +23,7 @@ export default function ContactCard({ contact }: ContactCardProps) {
           </Avatar>
           <div className="flex-1">
             <CardTitle className="text-lg">{contact.name}</CardTitle>
+            <p className="text-sm text-muted-foreground">{contact.cargo}</p>
           </div>
         </CardHeader>
         <CardContent className="space-y-2 text-sm text-muted-foreground pt-2">

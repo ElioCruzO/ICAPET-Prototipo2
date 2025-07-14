@@ -10,5 +10,6 @@ export interface Contact {
   phone: string;
   email: string;
   location: string;
+  cargo: string;
   interactions: Interaction[];
 }

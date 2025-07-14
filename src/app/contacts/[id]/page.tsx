@@ -8,7 +8,7 @@ import {
   Mail,
   Phone,
   MapPin,
-  User,
+  Briefcase,
   Edit,
   Trash2,
 } from "lucide-react";
@@ -78,6 +78,10 @@ export default function ContactDetailPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <Separator />
+              <div className="flex items-center gap-3">
+                <Briefcase className="h-5 w-5 text-muted-foreground" />
+                <span className="text-foreground">{contact.cargo}</span>
+              </div>
               <div className="flex items-center gap-3">
                 <Mail className="h-5 w-5 text-muted-foreground" />
                 <span className="text-foreground">{contact.email}</span>
