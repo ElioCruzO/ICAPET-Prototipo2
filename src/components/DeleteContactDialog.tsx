@@ -37,8 +37,8 @@ export default function DeleteContactDialog({
     if (contact) {
       deleteContact(contactId);
       toast({
-        title: "Contact Deleted",
-        description: `"${contact.name}" has been permanently deleted.`,
+        title: "Contacto Eliminado",
+        description: `"${contact.name}" ha sido eliminado permanentemente.`,
         variant: 'destructive',
       });
       onSuccess?.();
@@ -50,15 +50,15 @@ export default function DeleteContactDialog({
       <AlertDialogTrigger asChild>{children}</AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+          <AlertDialogTitle>¿Estás absolutamente seguro?</AlertDialogTitle>
           <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete the
-            contact and all their interaction history.
+            Esta acción no se puede deshacer. Esto eliminará permanentemente el
+            contacto y todo su historial de interacciones.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
+          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+          <AlertDialogAction onClick={handleDelete}>Eliminar</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

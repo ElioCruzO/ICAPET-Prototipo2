@@ -20,8 +20,8 @@ export default function InteractionForm({ contactId }: InteractionFormProps) {
     if (notes.trim()) {
       addInteraction(contactId, { notes });
       toast({
-        title: "Interaction Recorded",
-        description: "Your new interaction has been saved.",
+        title: "Interacción Registrada",
+        description: "Tu nueva interacción ha sido guardada.",
       });
       setNotes("");
     }
@@ -30,14 +30,14 @@ export default function InteractionForm({ contactId }: InteractionFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <Textarea
-        placeholder="Record a new interaction..."
+        placeholder="Registrar una nueva interacción..."
         value={notes}
         onChange={(e) => setNotes(e.target.value)}
         className="min-h-[60px]"
       />
       <div className="flex justify-end">
         <Button type="submit" disabled={!notes.trim()}>
-          Save Interaction
+          Guardar Interacción
         </Button>
       </div>
     </form>

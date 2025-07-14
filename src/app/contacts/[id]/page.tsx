@@ -43,9 +43,9 @@ export default function ContactDetailPage() {
   if (!contact) {
     return (
       <div className="flex flex-col items-center justify-center h-full text-center">
-        <p className="text-xl text-muted-foreground">Contact not found.</p>
+        <p className="text-xl text-muted-foreground">Contacto no encontrado.</p>
         <Button asChild variant="link" className="mt-4">
-          <Link href="/contacts">Go back to contacts</Link>
+          <Link href="/contacts">Volver a contactos</Link>
         </Button>
       </div>
     );
@@ -62,7 +62,7 @@ export default function ContactDetailPage() {
         <Button variant="ghost" asChild>
           <Link href="/contacts">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Contacts
+            Volver a Contactos
           </Link>
         </Button>
       </div>
@@ -99,12 +99,12 @@ export default function ContactDetailPage() {
                 <Dialog open={isEditDialogOpen} onOpenChange={setEditDialogOpen}>
                   <DialogTrigger asChild>
                     <Button variant="outline" className="w-full">
-                      <Edit className="mr-2 h-4 w-4" /> Edit
+                      <Edit className="mr-2 h-4 w-4" /> Editar
                     </Button>
                   </DialogTrigger>
                   <DialogContent className="sm:max-w-[425px]">
                     <DialogHeader>
-                      <DialogTitle>Edit Contact</DialogTitle>
+                      <DialogTitle>Editar Contacto</DialogTitle>
                     </DialogHeader>
                     <ContactForm
                       contact={contact}
@@ -120,7 +120,7 @@ export default function ContactDetailPage() {
                   onSuccess={() => router.push('/contacts')}
                 >
                   <Button variant="destructive" className="w-full">
-                    <Trash2 className="mr-2 h-4 w-4" /> Delete
+                    <Trash2 className="mr-2 h-4 w-4" /> Eliminar
                   </Button>
                 </DeleteContactDialog>
               </div>
@@ -131,7 +131,7 @@ export default function ContactDetailPage() {
           <Card>
             <CardHeader>
               <div className="flex justify-between items-center">
-                <CardTitle>Interaction History</CardTitle>
+                <CardTitle>Historial de Interacciones</CardTitle>
                 {contact.interactions.length > 0 && <InteractionSummary contact={contact} />}
               </div>
             </CardHeader>

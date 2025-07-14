@@ -1,5 +1,6 @@
 import type { Interaction } from "@/lib/types";
 import { format, parseISO } from 'date-fns';
+import { es } from 'date-fns/locale';
 import { MessageSquare, Calendar } from "lucide-react";
 import { ScrollArea } from "./ui/scroll-area";
 
@@ -12,8 +13,8 @@ export default function InteractionList({ interactions }: InteractionListProps) 
     return (
       <div className="text-center py-10 border-2 border-dashed rounded-lg mt-4">
         <MessageSquare className="mx-auto h-12 w-12 text-muted-foreground" />
-        <h3 className="mt-2 text-sm font-semibold text-foreground">No Interactions</h3>
-        <p className="mt-1 text-sm text-muted-foreground">Record your first interaction above.</p>
+        <h3 className="mt-2 text-sm font-semibold text-foreground">Sin Interacciones</h3>
+        <p className="mt-1 text-sm text-muted-foreground">Registra tu primera interacción arriba.</p>
       </div>
     );
   }
@@ -30,7 +31,7 @@ export default function InteractionList({ interactions }: InteractionListProps) 
             </div>
             <div className="flex-1">
               <p className="text-sm font-medium text-foreground">
-                {format(parseISO(interaction.date), 'MMMM d, yyyy')}
+                {format(parseISO(interaction.date), "d 'de' MMMM, yyyy", { locale: es })}
               </p>
               <p className="text-sm text-muted-foreground mt-1">
                 {interaction.notes}

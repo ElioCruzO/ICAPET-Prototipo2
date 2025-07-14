@@ -39,12 +39,12 @@ export default function ContactsPage() {
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
-        <h1 className="text-3xl font-bold text-foreground">Contacts</h1>
+        <h1 className="text-3xl font-bold text-foreground">Contactos</h1>
         <div className="flex w-full sm:w-auto gap-2">
           <div className="relative w-full sm:w-64">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search contacts..."
+              placeholder="Buscar contactos..."
               className="pl-9"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -53,12 +53,12 @@ export default function ContactsPage() {
           <Dialog open={isAddDialogOpen} onOpenChange={setAddDialogOpen}>
             <DialogTrigger asChild>
               <Button>
-                <Plus className="mr-2 h-4 w-4" /> Add Contact
+                <Plus className="mr-2 h-4 w-4" /> Añadir Contacto
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
               <DialogHeader>
-                <DialogTitle>Add New Contact</DialogTitle>
+                <DialogTitle>Añadir Nuevo Contacto</DialogTitle>
               </DialogHeader>
               <ContactForm setOpen={setAddDialogOpen} />
             </DialogContent>

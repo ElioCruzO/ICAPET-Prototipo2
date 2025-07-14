@@ -23,11 +23,11 @@ interface ContactFormProps {
 }
 
 const contactSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters."),
-  email: z.string().email("Invalid email address."),
-  phone: z.string().min(10, "Phone number is too short."),
-  location: z.string().min(2, "Location is required."),
-  cargo: z.string().min(2, "Cargo is required."),
+  name: z.string().min(2, "El nombre debe tener al menos 2 caracteres."),
+  email: z.string().email("Dirección de correo electrónico inválida."),
+  phone: z.string().min(10, "El número de teléfono es demasiado corto."),
+  location: z.string().min(2, "La ubicación es obligatoria."),
+  cargo: z.string().min(2, "El cargo es obligatorio."),
 });
 
 export default function ContactForm({ contact, setOpen }: ContactFormProps) {
@@ -49,14 +49,14 @@ export default function ContactForm({ contact, setOpen }: ContactFormProps) {
     if (contact) {
       updateContact(contact.id, values);
       toast({
-        title: "Contact Updated",
-        description: `${values.name} has been successfully updated.`,
+        title: "Contacto Actualizado",
+        description: `${values.name} ha sido actualizado exitosamente.`,
       });
     } else {
       addContact(values);
       toast({
-        title: "Contact Added",
-        description: `${values.name} has been successfully added.`,
+        title: "Contacto Añadido",
+        description: `${values.name} ha sido añadido exitosamente.`,
       });
     }
     setOpen(false);
@@ -70,7 +70,7 @@ export default function ContactForm({ contact, setOpen }: ContactFormProps) {
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Name</FormLabel>
+              <FormLabel>Nombre</FormLabel>
               <FormControl>
                 <Input placeholder="John Doe" {...field} />
               </FormControl>
@@ -96,7 +96,7 @@ export default function ContactForm({ contact, setOpen }: ContactFormProps) {
           name="phone"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Phone</FormLabel>
+              <FormLabel>Teléfono</FormLabel>
               <FormControl>
                 <Input placeholder="123-456-7890" {...field} />
               </FormControl>
@@ -109,9 +109,9 @@ export default function ContactForm({ contact, setOpen }: ContactFormProps) {
           name="location"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Location</FormLabel>
+              <FormLabel>Ubicación</FormLabel>
               <FormControl>
-                <Input placeholder="New York, USA" {...field} />
+                <Input placeholder="Nueva York, USA" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -132,10 +132,10 @@ export default function ContactForm({ contact, setOpen }: ContactFormProps) {
         />
         <div className="flex justify-end gap-2 pt-4">
           <Button type="button" variant="ghost" onClick={() => setOpen(false)}>
-            Cancel
+            Cancelar
           </Button>
           <Button type="submit">
-            {contact ? "Save Changes" : "Add Contact"}
+            {contact ? "Guardar Cambios" : "Añadir Contacto"}
           </Button>
         </div>
       </form>

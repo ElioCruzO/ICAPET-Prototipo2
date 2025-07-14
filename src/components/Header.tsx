@@ -9,7 +9,7 @@ export default function Header() {
           <Link href="/contacts" className="flex items-center gap-2">
             <Package className="h-6 w-6 text-primary" />
             <span className="text-xl font-bold tracking-tight text-foreground">
-              Contact Keeper
+              Gestor de Contactos
             </span>
           </Link>
         </div>

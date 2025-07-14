@@ -33,12 +33,12 @@ export default function InteractionSummary({ contact }: InteractionSummaryProps)
       const interactionHistory = contact.interactions
         .map(
           (i) =>
-            `Date: ${new Date(i.date).toLocaleDateString()}\nNotes: ${i.notes}`
+            `Fecha: ${new Date(i.date).toLocaleDateString('es-ES')}\nNotas: ${i.notes}`
         )
         .join("\n\n---\n\n");
       
       if (!interactionHistory) {
-        setSummary("No interactions to summarize.");
+        setSummary("No hay interacciones para resumir.");
         return;
       }
       
@@ -48,7 +48,7 @@ export default function InteractionSummary({ contact }: InteractionSummaryProps)
 
       setSummary(result.summary);
     } catch (e) {
-      setError("Failed to generate summary. Please try again.");
+      setError("No se pudo generar el resumen. Por favor, inténtalo de nuevo.");
       console.error(e);
     } finally {
       setIsLoading(false);
@@ -64,14 +64,14 @@ export default function InteractionSummary({ contact }: InteractionSummaryProps)
           ) : (
             <Sparkles className="mr-2 h-4 w-4" />
           )}
-          Summarize
+          Resumir
         </Button>
       </SheetTrigger>
       <SheetContent className="sm:max-w-lg w-[90vw]">
         <SheetHeader>
-          <SheetTitle>Interaction Summary for {contact.name}</SheetTitle>
+          <SheetTitle>Resumen de Interacciones para {contact.name}</SheetTitle>
           <SheetDescription>
-            An AI-generated summary of your interactions.
+            Un resumen de tus interacciones generado por IA.
           </SheetDescription>
         </SheetHeader>
         <ScrollArea className="h-[calc(100vh-8rem)] pr-6">

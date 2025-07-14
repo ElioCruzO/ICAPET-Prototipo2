@@ -4,8 +4,8 @@ import { Toaster } from "@/components/ui/toaster";
 import Header from "@/components/Header";
 
 export const metadata: Metadata = {
-  title: "Contact Keeper",
-  description: "A directory application to group contacts.",
+  title: "Gestor de Contactos",
+  description: "Una aplicación de directorio para agrupar contactos.",
 };
 
 export default function RootLayout({
@@ -14,7 +14,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full">
+    <html lang="es" className="h-full">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link

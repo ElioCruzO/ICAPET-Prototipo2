@@ -35,11 +35,11 @@ const summarizeInteractionsPrompt = ai.definePrompt({
   name: 'summarizeInteractionsPrompt',
   input: {schema: SummarizeInteractionsInputSchema},
   output: {schema: SummarizeInteractionsOutputSchema},
-  prompt: `You are an AI assistant that summarizes interaction histories between a user and a contact.
+  prompt: `Eres un asistente de IA que resume historiales de interacción entre un usuario y un contacto. El resumen debe estar en español.
 
-  Given the following interaction history, please provide a concise summary highlighting the key discussion points and any agreed-upon actions:
+  Dado el siguiente historial de interacciones, proporciona un resumen conciso destacando los puntos clave de la discusión y cualquier acción acordada:
 
-  Interaction History:
+  Historial de Interacciones:
   {{interactions}}
   `,
 });

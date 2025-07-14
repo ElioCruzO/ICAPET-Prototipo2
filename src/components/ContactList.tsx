@@ -11,8 +11,8 @@ export default function ContactList({ contacts }: ContactListProps) {
     return (
       <div className="text-center py-20 border-2 border-dashed rounded-lg">
         <FileQuestion className="mx-auto h-12 w-12 text-muted-foreground" />
-        <h3 className="mt-2 text-sm font-semibold text-foreground">No contacts yet</h3>
-        <p className="mt-1 text-sm text-muted-foreground">Get started by adding a new contact.</p>
+        <h3 className="mt-2 text-sm font-semibold text-foreground">Aún no hay contactos</h3>
+        <p className="mt-1 text-sm text-muted-foreground">Empieza añadiendo un nuevo contacto.</p>
       </div>
     )
   }
