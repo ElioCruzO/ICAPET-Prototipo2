@@ -1,6 +1,6 @@
 export interface Interaction {
   id: string;
-  date: string;
+  date: string; // ISO date string
   notes: string;
 }
 
@@ -11,5 +11,5 @@ export interface Contact {
   email: string;
   location: string;
   cargo: string;
-  interactions: Interaction[];
+  interactions?: Interaction[];
 }

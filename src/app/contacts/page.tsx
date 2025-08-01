@@ -1,6 +1,4 @@
-"use client";
-
-import { useState, useMemo } from "react";
+import { Suspense } from "react";
 import { Plus, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,45 +10,51 @@ import {
 } from "@/components/ui/dialog";
 import ContactList from "@/components/ContactList";
 import ContactForm from "@/components/ContactForm";
-import { useContactStore } from "@/store/contacts";
 import { Input } from "@/components/ui/input";
+import { getContacts } from "@/lib/data";
+import { Skeleton } from "@/components/ui/skeleton";
+import SearchBar from "@/components/SearchBar";
 
-export default function ContactsPage() {
-  const allContacts = useContactStore((state) => state.contacts);
-  const [isAddDialogOpen, setAddDialogOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
+async function Contacts({ query }: { query: string }) {
+  const contacts = await getContacts(query);
+  return <ContactList contacts={contacts} />;
+}
 
-  const filteredContacts = useMemo(() => {
-    if (!searchTerm) {
-      return allContacts;
-    }
-    return allContacts.filter((contact) => {
-      const term = searchTerm.toLowerCase();
-      return (
-        contact.name.toLowerCase().includes(term) ||
-        contact.email.toLowerCase().includes(term) ||
-        contact.phone.toLowerCase().includes(term) ||
-        contact.location.toLowerCase().includes(term) ||
-        contact.cargo.toLowerCase().includes(term)
-      );
-    });
-  }, [allContacts, searchTerm]);
+function ContactsSkeleton() {
+  return (
+    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      {Array.from({ length: 8 }).map((_, i) => (
+         <div key={i} className="p-4 border rounded-lg space-y-3">
+           <div className="flex items-center gap-4">
+             <Skeleton className="h-12 w-12 rounded-full" />
+             <div className="space-y-2">
+               <Skeleton className="h-4 w-32" />
+               <Skeleton className="h-4 w-24" />
+             </div>
+           </div>
+           <Skeleton className="h-4 w-full" />
+           <Skeleton className="h-4 w-full" />
+           <Skeleton className="h-4 w-full" />
+         </div>
+      ))}
+    </div>
+  );
+}
+
+export default function ContactsPage({
+  searchParams,
+}: {
+  searchParams?: { query?: string };
+}) {
+  const query = searchParams?.query || "";
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
         <h1 className="text-3xl font-bold text-foreground">Contactos</h1>
         <div className="flex w-full sm:w-auto gap-2">
-          <div className="relative w-full sm:w-64">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Buscar contactos..."
-              className="pl-9"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-          <Dialog open={isAddDialogOpen} onOpenChange={setAddDialogOpen}>
+          <SearchBar placeholder="Buscar contactos..." />
+          <Dialog>
             <DialogTrigger asChild>
               <Button>
                 <Plus className="mr-2 h-4 w-4" /> Añadir Contacto
@@ -60,13 +64,14 @@ export default function ContactsPage() {
               <DialogHeader>
                 <DialogTitle>Añadir Nuevo Contacto</DialogTitle>
               </DialogHeader>
-              <ContactForm setOpen={setAddDialogOpen} />
+              <ContactForm />
             </DialogContent>
           </Dialog>
         </div>
       </div>
-
-      <ContactList contacts={filteredContacts} />
+      <Suspense key={query} fallback={<ContactsSkeleton />}>
+        <Contacts query={query} />
+      </Suspense>
     </div>
   );
 }

@@ -1,6 +1,5 @@
 "use client";
 
-import { useContactStore } from "@/store/contacts";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -13,36 +12,43 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
+import { deleteContact } from "@/lib/actions";
+import { useRouter } from "next/navigation";
+import { useState, useTransition } from "react";
 
 interface DeleteContactDialogProps {
   contactId: string;
-  open: boolean;
-  setOpen: (open: boolean) => void;
-  onSuccess?: () => void;
   children: React.ReactNode;
 }
 
 export default function DeleteContactDialog({
   contactId,
-  open,
-  setOpen,
-  onSuccess,
   children,
 }: DeleteContactDialogProps) {
-  const { deleteContact, getContactById } = useContactStore();
   const { toast } = useToast();
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
   const handleDelete = () => {
-    const contact = getContactById(contactId);
-    if (contact) {
-      deleteContact(contactId);
-      toast({
-        title: "Contacto Eliminado",
-        description: `"${contact.name}" ha sido eliminado permanentemente.`,
-        variant: 'destructive',
-      });
-      onSuccess?.();
-    }
+    startTransition(async () => {
+      try {
+        await deleteContact(contactId);
+        toast({
+          title: "Contacto Eliminado",
+          description: `El contacto ha sido eliminado permanentemente.`,
+          variant: "destructive",
+        });
+        setOpen(false);
+        router.push("/contacts");
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "No se pudo eliminar el contacto.",
+          variant: "destructive",
+        });
+      }
+    });
   };
 
   return (
@@ -57,8 +63,10 @@ export default function DeleteContactDialog({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancelar</AlertDialogCancel>
-          <AlertDialogAction onClick={handleDelete}>Eliminar</AlertDialogAction>
+          <AlertDialogCancel disabled={isPending}>Cancelar</AlertDialogCancel>
+          <AlertDialogAction onClick={handleDelete} disabled={isPending}>
+            {isPending ? "Eliminando..." : "Eliminar"}
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

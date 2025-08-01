@@ -15,6 +15,7 @@ import type { Contact } from "@/lib/types";
 import { summarizeInteractions } from "@/ai/flows/summarize-interactions";
 import { ScrollArea } from "./ui/scroll-area";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
+import { format, parseISO } from "date-fns";
 
 interface InteractionSummaryProps {
   contact: Contact;
@@ -33,7 +34,7 @@ export default function InteractionSummary({ contact }: InteractionSummaryProps)
       const interactionHistory = contact.interactions
         .map(
           (i) =>
-            `Fecha: ${new Date(i.date).toLocaleDateString('es-ES')}\nNotas: ${i.notes}`
+            `Fecha: ${format(parseISO(i.date), 'dd/MM/yyyy')}\nNotas: ${i.notes}`
         )
         .join("\n\n---\n\n");
       

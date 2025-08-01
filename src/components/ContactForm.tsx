@@ -4,7 +4,6 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import type { Contact } from "@/lib/types";
-import { useContactStore } from "@/store/contacts";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -16,10 +15,13 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { addContact, updateContact } from "@/lib/actions";
+import { useState } from "react";
+import { Loader2 } from "lucide-react";
 
 interface ContactFormProps {
   contact?: Contact;
-  setOpen: (open: boolean) => void;
+  setOpen?: (open: boolean) => void;
 }
 
 const contactSchema = z.object({
@@ -31,8 +33,8 @@ const contactSchema = z.object({
 });
 
 export default function ContactForm({ contact, setOpen }: ContactFormProps) {
-  const { addContact, updateContact } = useContactStore();
   const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<z.infer<typeof contactSchema>>({
     resolver: zodResolver(contactSchema),
@@ -45,21 +47,32 @@ export default function ContactForm({ contact, setOpen }: ContactFormProps) {
     },
   });
 
-  function onSubmit(values: z.infer<typeof contactSchema>) {
-    if (contact) {
-      updateContact(contact.id, values);
-      toast({
-        title: "Contacto Actualizado",
-        description: `${values.name} ha sido actualizado exitosamente.`,
+  async function onSubmit(values: z.infer<typeof contactSchema>) {
+    setIsSubmitting(true);
+    try {
+      if (contact) {
+        await updateContact(contact.id, values);
+        toast({
+          title: "Contacto Actualizado",
+          description: `${values.name} ha sido actualizado exitosamente.`,
+        });
+      } else {
+        await addContact(values);
+        toast({
+          title: "Contacto Añadido",
+          description: `${values.name} ha sido añadido exitosamente.`,
+        });
+      }
+      setOpen?.(false);
+    } catch (error) {
+       toast({
+        title: "Error",
+        description: "No se pudo guardar el contacto. Inténtelo de nuevo.",
+        variant: "destructive",
       });
-    } else {
-      addContact(values);
-      toast({
-        title: "Contacto Añadido",
-        description: `${values.name} ha sido añadido exitosamente.`,
-      });
+    } finally {
+      setIsSubmitting(false);
     }
-    setOpen(false);
   }
 
   return (
@@ -131,10 +144,11 @@ export default function ContactForm({ contact, setOpen }: ContactFormProps) {
           )}
         />
         <div className="flex justify-end gap-2 pt-4">
-          <Button type="button" variant="ghost" onClick={() => setOpen(false)}>
+          <Button type="button" variant="ghost" onClick={() => setOpen?.(false)} disabled={isSubmitting}>
             Cancelar
           </Button>
-          <Button type="submit">
+          <Button type="submit" disabled={isSubmitting}>
+             {isSubmitting && <Loader2 className="animate-spin" />}
             {contact ? "Guardar Cambios" : "Añadir Contacto"}
           </Button>
         </div>
