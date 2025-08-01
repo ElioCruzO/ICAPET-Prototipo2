@@ -31,7 +31,13 @@ export default function InteractionList({ interactions }: InteractionListProps) 
             </div>
             <div className="flex-1">
               <p className="text-sm font-medium text-foreground">
-                {format(parseISO(interaction.date), "d 'de' MMMM, yyyy", { locale: es })}
+                {format(
+                  typeof interaction.date === "string"
+                    ? parseISO(interaction.date)
+                    : new Date(interaction.date),
+                  "d 'de' MMMM, yyyy",
+                  { locale: es }
+                )}
               </p>
               <p className="text-sm text-muted-foreground mt-1">
                 {interaction.notes}
