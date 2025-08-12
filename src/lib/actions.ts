@@ -10,6 +10,7 @@ const contactSchema = z.object({
   email: z.string().email(),
   phone: z.string().min(10),
   location: z.string().min(2),
+  sector: z.string().min(4),
   cargo: z.string().min(2),
 });
 
@@ -20,8 +21,8 @@ const interactionSchema = z.object({
 export async function addContact(data: Omit<Contact, 'id' | 'interactions'>) {
   const validatedData = contactSchema.parse(data);
   const [result] = await db.execute(
-    'INSERT INTO contactos (name, phone, email, location, cargo) VALUES (?, ?, ?, ?, ?)',
-    [validatedData.name, validatedData.phone, validatedData.email, validatedData.location, validatedData.cargo]
+    'INSERT INTO contactos (name, phone, email, location, sector, cargo) VALUES (?, ?, ?, ?, ?, ?)',
+    [validatedData.name, validatedData.phone, validatedData.email, validatedData.location, validatedData.sector, validatedData.cargo]
   );
   revalidatePath('/contacts');
   return result;
