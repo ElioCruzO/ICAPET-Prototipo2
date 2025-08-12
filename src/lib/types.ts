@@ -10,6 +10,7 @@ export interface Contact {
   phone: string;
   email: string;
   location: string;
+  sector:string;
   cargo: string;
   interactions?: Interaction[];
 }
