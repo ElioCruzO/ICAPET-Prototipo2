@@ -29,6 +29,8 @@ const contactSchema = z.object({
   email: z.string().email("Dirección de correo electrónico inválida."),
   phone: z.string().min(10, "El número de teléfono es demasiado corto."),
   location: z.string().min(2, "La ubicación es obligatoria."),
+  sector: z.string().min(2, "La ubicación es obligatoria."),
+
   cargo: z.string().min(2, "El cargo es obligatorio."),
 });
 
@@ -43,6 +45,7 @@ export default function ContactForm({ contact, setOpen }: ContactFormProps) {
       email: contact?.email || "",
       phone: contact?.phone || "",
       location: contact?.location || "",
+      sector: contact?.sector ||"",
       cargo: contact?.cargo || "",
     },
   });
@@ -125,6 +128,19 @@ export default function ContactForm({ contact, setOpen }: ContactFormProps) {
               <FormLabel>Ubicación</FormLabel>
               <FormControl>
                 <Input placeholder="Nueva York, USA" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="sector"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Sector</FormLabel>
+              <FormControl>
+                <Input placeholder="Privado, Publico" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
