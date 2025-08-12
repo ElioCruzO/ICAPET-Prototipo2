@@ -9,6 +9,7 @@ type ContactFromDB = {
   phone: string;
   email: string;
   location: string;
+  sector: string;
   cargo: string;
 };
 
@@ -25,14 +26,15 @@ export async function getContacts(query: string): Promise<Contact[]> {
   try {
     const searchTerm = `%${query}%`;
     const [rows] = await db.query<ContactFromDB[]>(
-        `SELECT * FROM contactos 
-         WHERE name LIKE ? 
-         OR email LIKE ? 
-         OR phone LIKE ? 
-         OR location LIKE ? 
-         OR cargo LIKE ?
-         ORDER BY name ASC`,
-      [searchTerm, searchTerm, searchTerm, searchTerm, searchTerm]
+      `SELECT * FROM contactos 
+       WHERE name LIKE ? 
+       OR email LIKE ? 
+       OR phone LIKE ? 
+       OR location LIKE ?
+       OR cargo LIKE ?
+       OR sector LIKE ?
+       ORDER BY name ASC`,
+      [searchTerm, searchTerm, searchTerm, searchTerm, searchTerm, searchTerm]
     );
     return rows;
   } catch (error) {
