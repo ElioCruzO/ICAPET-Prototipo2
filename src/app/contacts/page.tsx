@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { getContacts } from "@/lib/data";
 import { Skeleton } from "@/components/ui/skeleton";
 import SearchBar from "@/components/SearchBar";
+import SectorFilter from "@/components/SectorFilter";
 
 async function Contacts({ query }: { query: string }) {
   const contacts = await getContacts(query);
@@ -53,7 +54,9 @@ export default function ContactsPage({
       <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
         <h1 className="text-3xl font-bold text-foreground">Contactos</h1>
         <div className="flex w-full sm:w-auto gap-2">
+          <SectorFilter></SectorFilter>
           <SearchBar placeholder="Buscar contactos..." />
+
           <Dialog>
             <DialogTrigger asChild>
               <Button>
