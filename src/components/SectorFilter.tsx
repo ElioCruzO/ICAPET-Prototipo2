@@ -17,7 +17,8 @@ export default function SectorFilter() {
     "Gasolineras",
     "Organizaciones productivas",
     "Empresas",
-    "Organizaciones Empresariales, otros"
+    "Organizaciones Empresariales",
+    "Otros"
   ];
 
   const handleSectorChange = (sector: string) => {
