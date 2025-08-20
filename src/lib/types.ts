@@ -1,3 +1,8 @@
+export interface Sector {
+  id: string;
+  nombre: string;
+}
+
 export interface Interaction {
   id: string;
   date: string; // ISO date string
@@ -10,7 +15,8 @@ export interface Contact {
   phone: string;
   email: string;
   location: string;
-  sector:string;
+  sectorId: string;   // FK hacia sectores
+  sector?: Sector;    // objeto sector (opcional para cuando hacemos JOIN)
   cargo: string;
   interactions?: Interaction[];
 }
