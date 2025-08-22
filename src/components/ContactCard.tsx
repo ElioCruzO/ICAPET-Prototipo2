@@ -81,10 +81,6 @@ export default function ContactCard({ contact }: ContactCardProps) {
               <MapPin className="h-4 w-4" />
               <span>{contact.location}</span>
             </div>
-            <div className="flex items-center gap-2">
-              <Building className="h-4 w-4" />
-              <span>{sectorName}</span>
-            </div>
           </CardContent>
         </div>
         {/* Barra de color para el sector */}
