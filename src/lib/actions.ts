@@ -5,12 +5,13 @@ import { db } from './db';
 import { z } from 'zod';
 import { Contact, Interaction } from './types';
 
+// Esquemas de validación
 const contactSchema = z.object({
   name: z.string().min(2),
   email: z.string().email(),
   phone: z.string().min(10),
   location: z.string().min(2),
-  sectorId: z.string().regex(/^\d+$/), // debe ser un id numérico
+  sector: z.string().min(2),
   cargo: z.string().min(2),
 });
 
@@ -18,57 +19,131 @@ const interactionSchema = z.object({
   notes: z.string().min(1),
 });
 
-export async function addContact(data: Omit<Contact, 'id' | 'interactions' | 'sector'>) {
-  const validatedData = contactSchema.parse(data);
+// Agregar contacto
+export async function addContact(
+  data: Omit<Contact, 'id' | 'interactions' | 'sectorId'>
+) {
+  try {
+    const validatedData = contactSchema.parse(data);
+    const sectorName = validatedData.sector.trim();
 
-  const [result] = await db.execute(
-    `INSERT INTO contactos (name, phone, email, location, sector_id, cargo) 
-     VALUES (?, ?, ?, ?, ?, ?)`,
-    [
-      validatedData.name,
-      validatedData.phone,
-      validatedData.email,
-      validatedData.location,
-      validatedData.sectorId,
-      validatedData.cargo,
-    ]
-  );
+    // Buscar o crear sector
+    const [sectorRows]: any = await db.query(
+      'SELECT id FROM sectores WHERE LOWER(nombre) = LOWER(?)',
+      [sectorName]
+    );
 
-  revalidatePath('/contacts');
-  return result;
+    let sectorId: number;
+    if (sectorRows.length > 0) {
+      sectorId = sectorRows[0].id;
+    } else {
+      const [result]: any = await db.execute(
+        'INSERT INTO sectores (nombre) VALUES (?)',
+        [sectorName]
+      );
+      sectorId = result.insertId;
+    }
+
+    // Insertar contacto
+    const [result]: any = await db.execute(
+      `INSERT INTO contactos (name, phone, email, location, sector_id, cargo)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [
+        validatedData.name,
+        validatedData.phone,
+        validatedData.email,
+        validatedData.location,
+        sectorId,
+        validatedData.cargo,
+      ]
+    );
+
+    revalidatePath('/contacts');
+    return { success: true, insertId: result.insertId };
+  } catch (error: any) {
+    console.error('Error agregando contacto:', error);
+    return {
+      success: false,
+      error:
+        error.sqlMessage ||
+        error.message ||
+        'No se pudo agregar el contacto.',
+    };
+  }
 }
 
-export async function updateContact(id: string, data: Partial<Omit<Contact, 'id' | 'interactions' | 'sector'>>) {
-  const validatedData = contactSchema.partial().parse(data);
+// Actualizar contacto
+export async function updateContact(
+  id: number,
+  data: Partial<Omit<Contact, 'id' | 'interactions' | 'sectorId'>>
+) {
+  try {
+    const validatedData = contactSchema.partial().parse(data);
 
-  const fields = Object.keys(validatedData) as (keyof typeof validatedData)[];
-  const values = fields.map(field => validatedData[field]);
+    const updateFields: string[] = [];
+    const updateValues: any[] = [];
 
-  if (fields.length === 0) return;
+    // Si viene sector, buscar o crear
+    if (validatedData.sector) {
+      const sectorName = validatedData.sector.trim();
+      const [sectorRows]: any = await db.query(
+        'SELECT id FROM sectores WHERE LOWER(nombre) = LOWER(?)',
+        [sectorName]
+      );
 
-  const setClause = fields.map(field => {
-    if (field === "sectorId") return "sector_id = ?";
-    return `${field} = ?`;
-  }).join(', ');
+      let sectorId: number;
+      if (sectorRows.length > 0) {
+        sectorId = sectorRows[0].id;
+      } else {
+        const [result]: any = await db.execute(
+          'INSERT INTO sectores (nombre) VALUES (?)',
+          [sectorName]
+        );
+        sectorId = result.insertId;
+      }
 
-  const [result] = await db.execute(
-    `UPDATE contactos SET ${setClause} WHERE id = ?`,
-    [...values, id]
-  );
+      updateFields.push('sector_id = ?');
+      updateValues.push(sectorId);
+      delete validatedData.sector;
+    }
 
-  revalidatePath('/contacts');
-  revalidatePath(`/contacts/${id}`);
-  return result;
+    // Otros campos
+    for (const key in validatedData) {
+      updateFields.push(`${key} = ?`);
+      updateValues.push(validatedData[key as keyof typeof validatedData]);
+    }
+
+    if (updateFields.length === 0) return;
+
+    const setClause = updateFields.join(', ');
+    const [result] = await db.execute(
+      `UPDATE contactos SET ${setClause} WHERE id = ?`,
+      [...updateValues, id]
+    );
+
+    revalidatePath('/contacts');
+    revalidatePath(`/contacts/${id}`);
+    return result;
+  } catch (error: any) {
+    console.error('Error actualizando contacto:', error);
+    throw new Error(
+      error.sqlMessage || error.message || 'No se pudo actualizar el contacto.'
+    );
+  }
 }
 
+// Eliminar contacto
 export async function deleteContact(id: string) {
   const [result] = await db.execute('DELETE FROM contactos WHERE id = ?', [id]);
   revalidatePath('/contacts');
-  revalidatePath(`/contacts/${id}`);
   return result;
 }
 
-export async function addInteraction(contactId: string, data: Omit<Interaction, 'id' | 'date'>) {
+// Agregar interacción
+export async function addInteraction(
+  contactId: string,
+  data: Omit<Interaction, 'id' | 'date'>
+) {
   const validatedData = interactionSchema.parse(data);
 
   const [result] = await db.execute(
@@ -80,3 +155,5 @@ export async function addInteraction(contactId: string, data: Omit<Interaction, 
   revalidatePath(`/contacts/${contactId}`);
   return result;
 }
+
+// Obtener sectores

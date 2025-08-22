@@ -1,32 +1,35 @@
 import 'server-only';
 import { db } from './db';
-import { Contact, Interaction, Sector } from './types';
+import { Contact, Interaction } from './types';
 import { unstable_noStore as noStore } from 'next/cache';
 
 type ContactFromDB = {
-  id: string;
+  id: number;
   name: string;
   phone: string;
   email: string;
   location: string;
-  sectorId: string;   // FK
-  sectorNombre: string; // nombre del sector
+  sectorId: number;
+  sectorNombre: string;
   cargo: string;
 };
 
 type InteractionFromDB = {
-  id: string;
-  contacto_id: string;
+  id: number;
+  contacto_id: number;
   date: string;
   notes: string;
 };
 
+type SectorFromDB = {
+  id: number;
+  
+  nombre: string;
+};
 export async function getContacts(query: string): Promise<Contact[]> {
   noStore();
-
   try {
     const searchTerm = `%${query}%`;
-
     const [rows] = await db.query<ContactFromDB[]>(
       `SELECT c.id, c.name, c.phone, c.email, c.location, 
               c.sector_id AS sectorId, s.nombre AS sectorNombre, 
@@ -44,14 +47,14 @@ export async function getContacts(query: string): Promise<Contact[]> {
     );
 
     return rows.map(row => ({
-      id: row.id,
+      id: row.id.toString(),
       name: row.name,
       phone: row.phone,
       email: row.email,
       location: row.location,
-      sectorId: row.sectorId,
+      sectorId: row.sectorId.toString(),
       sector: {
-        id: row.sectorId,
+        id: row.sectorId.toString(),
         nombre: row.sectorNombre
       },
       cargo: row.cargo,
@@ -65,7 +68,6 @@ export async function getContacts(query: string): Promise<Contact[]> {
 
 export async function getContactById(id: string): Promise<Contact | null> {
   noStore();
-
   try {
     const [contactRows] = await db.query<ContactFromDB[]>(
       `SELECT c.id, c.name, c.phone, c.email, c.location, 
@@ -77,9 +79,7 @@ export async function getContactById(id: string): Promise<Contact | null> {
       [id]
     );
 
-    if (contactRows.length === 0) {
-      return null;
-    }
+    if (contactRows.length === 0) return null;
 
     const contact = contactRows[0];
 
@@ -89,18 +89,23 @@ export async function getContactById(id: string): Promise<Contact | null> {
     );
 
     return {
-      id: contact.id,
+      id: contact.id.toString(),
       name: contact.name,
       phone: contact.phone,
       email: contact.email,
       location: contact.location,
-      sectorId: contact.sectorId,
+      sectorId: contact.sectorId.toString(),
       sector: {
-        id: contact.sectorId,
+        id: contact.sectorId.toString(),
         nombre: contact.sectorNombre
       },
       cargo: contact.cargo,
-      interactions: interactionRows
+      interactions: interactionRows.map(i => ({
+        id: i.id.toString(),
+        contacto_id: i.contacto_id.toString(),
+        date: i.date,
+        notes: i.notes
+      }))
     };
   } catch (error) {
     console.error('Database Error:', error);
