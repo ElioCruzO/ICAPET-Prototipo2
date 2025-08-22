@@ -156,8 +156,8 @@ function ContactDetailsSkeleton() {
   );
 }
 
-export default function ContactDetailPage({ params }: { params: { id: string } }) {
-  const { id } = params;
+export default async function ContactDetailPage({ params }: { params: { id: string } }) {
+  const { id } = await params;
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">

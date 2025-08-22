@@ -29,10 +29,24 @@ const contactSchema = z.object({
   email: z.string().email("Dirección de correo electrónico inválida."),
   phone: z.string().min(10, "El número de teléfono es demasiado corto."),
   location: z.string().min(2, "La ubicación es obligatoria."),
-  sector: z.string().min(2, "La ubicación es obligatoria."),
-
+  sectorId: z.string().min(1, "Debe seleccionar un sector."),
   cargo: z.string().min(2, "El cargo es obligatorio."),
 });
+
+// Lista de sectores
+const sectores = [
+  "Autoridades municipales",
+  "Educación media superior",
+  "Reclusorios",
+  "Gobierno del estado",
+  "Gobierno federal",
+  "Oficina centrales",
+  "Gasolineras",
+  "Organizaciones productivas",
+  "Empresas",
+  "Organizaciones Empresariales",
+  "Otros",
+];
 
 export default function ContactForm({ contact, setOpen }: ContactFormProps) {
   const { toast } = useToast();
@@ -45,7 +59,7 @@ export default function ContactForm({ contact, setOpen }: ContactFormProps) {
       email: contact?.email || "",
       phone: contact?.phone || "",
       location: contact?.location || "",
-      sector: contact?.sector ||"",
+      sectorId: contact?.sector || "",
       cargo: contact?.cargo || "",
     },
   });
@@ -68,7 +82,7 @@ export default function ContactForm({ contact, setOpen }: ContactFormProps) {
       }
       setOpen?.(false);
     } catch (error) {
-       toast({
+      toast({
         title: "Error",
         description: "No se pudo guardar el contacto. Inténtelo de nuevo.",
         variant: "destructive",
@@ -81,6 +95,7 @@ export default function ContactForm({ contact, setOpen }: ContactFormProps) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
+        {/* Nombre */}
         <FormField
           control={form.control}
           name="name"
@@ -94,6 +109,8 @@ export default function ContactForm({ contact, setOpen }: ContactFormProps) {
             </FormItem>
           )}
         />
+
+        {/* Email */}
         <FormField
           control={form.control}
           name="email"
@@ -107,6 +124,8 @@ export default function ContactForm({ contact, setOpen }: ContactFormProps) {
             </FormItem>
           )}
         />
+
+        {/* Teléfono */}
         <FormField
           control={form.control}
           name="phone"
@@ -120,6 +139,8 @@ export default function ContactForm({ contact, setOpen }: ContactFormProps) {
             </FormItem>
           )}
         />
+
+        {/* Ubicación */}
         <FormField
           control={form.control}
           name="location"
@@ -127,25 +148,39 @@ export default function ContactForm({ contact, setOpen }: ContactFormProps) {
             <FormItem>
               <FormLabel>Ubicación</FormLabel>
               <FormControl>
-                <Input placeholder="Nueva York, USA" {...field} />
+                <Input placeholder="Ciudad, País" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
+
+        {/* Sector */}
         <FormField
           control={form.control}
-          name="sector"
+          name="sectorId"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Sector</FormLabel>
               <FormControl>
-                <Input placeholder="Privado, Publico" {...field} />
+                <select
+                  {...field}
+                  className="w-full rounded-md border border-gray-300 p-2"
+                >
+                  <option value="">Seleccione un sector</option>
+                  {sectores.map((sec) => (
+                    <option key={sec} value={sec}>
+                      {sec}
+                    </option>
+                  ))}
+                </select>
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
+
+        {/* Cargo */}
         <FormField
           control={form.control}
           name="cargo"
@@ -159,12 +194,19 @@ export default function ContactForm({ contact, setOpen }: ContactFormProps) {
             </FormItem>
           )}
         />
+
+        {/* Botones */}
         <div className="flex justify-end gap-2 pt-4">
-          <Button type="button" variant="ghost" onClick={() => setOpen?.(false)} disabled={isSubmitting}>
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => setOpen?.(false)}
+            disabled={isSubmitting}
+          >
             Cancelar
           </Button>
           <Button type="submit" disabled={isSubmitting}>
-             {isSubmitting && <Loader2 className="animate-spin" />}
+            {isSubmitting && <Loader2 className="animate-spin mr-2" />}
             {contact ? "Guardar Cambios" : "Añadir Contacto"}
           </Button>
         </div>

@@ -55,6 +55,7 @@ export default function ContactsPage({
         <h1 className="text-3xl font-bold text-foreground">Contactos</h1>
         <div className="flex w-full sm:w-auto gap-2">
           <SectorFilter></SectorFilter>
+          
           <SearchBar placeholder="Buscar contactos..." />
 
           <Dialog>
