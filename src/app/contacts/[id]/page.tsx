@@ -7,6 +7,7 @@ import {
   Briefcase,
   Edit,
   Trash2,
+  Building,
 } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -28,6 +29,39 @@ import InteractionForm from "@/components/InteractionForm";
 import InteractionSummary from "@/components/InteractionSummary";
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
+
+// Mapeo de sectores a colores (debe coincidir con el de ContactCard)
+const sectorColors: Record<string, string> = {
+  'autoridades-municipales': 'bg-blue-500',
+  'educacion-media-superior': 'bg-green-500',
+  'reclusorios': 'bg-red-500',
+  'gobierno-estado': 'bg-purple-500',
+  'gobierno-federal': 'bg-indigo-500',
+  'oficinas-centrales': 'bg-yellow-500',
+  'gasolineras': 'bg-orange-500',
+  'organizaciones-productivas': 'bg-teal-500',
+  'empresas': 'bg-cyan-500',
+  'organizaciones-empresariales': 'bg-pink-500',
+  'otros': 'bg-gray-500'
+};
+
+// Función para obtener el color según el sector
+const getSectorColor = (sectorId: string, sectorName?: string): string => {
+  return sectorColors[sectorId] || 
+         (sectorName ? sectorColors[sectorName.toLowerCase().replace(/\s+/g, '-')] : 'bg-gray-500') || 
+         'bg-gray-500';
+};
+
+// Función para obtener el nombre del sector
+const getSectorName = (contact: any): string => {
+  return contact.sector?.nombre || 'Sector no especificado';
+};
+
+// Función para obtener el ID del sector para colores
+const getSectorIdForColor = (contact: any): string => {
+  return contact.sector?.id || contact.sector?.nombre?.toLowerCase().replace(/\s+/g, '-') || 'otros';
+};
 
 async function ContactDetails({ id }: { id: string }) {
   const contact = await getContactById(id);
@@ -41,15 +75,24 @@ async function ContactDetails({ id }: { id: string }) {
     .map((n) => n[0])
     .join("");
 
+  const sectorName = getSectorName(contact);
+  const sectorIdForColor = getSectorIdForColor(contact);
+  const sectorColor = getSectorColor(sectorIdForColor, contact.sector?.nombre);
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
       <div className="lg:col-span-1">
         <Card>
           <CardHeader className="text-center">
             <Avatar className="mx-auto h-24 w-24 text-3xl mb-4">
-              <AvatarFallback>{initials}</AvatarFallback>
+              <AvatarFallback className={sectorColor}>{initials}</AvatarFallback>
             </Avatar>
             <CardTitle className="text-2xl">{contact.name}</CardTitle>
+            <div className="flex justify-center mt-2">
+              <Badge className={`${sectorColor} text-white`}>
+                {sectorName}
+              </Badge>
+            </div>
           </CardHeader>
           <CardContent className="space-y-4">
             <Separator />
@@ -68,6 +111,10 @@ async function ContactDetails({ id }: { id: string }) {
             <div className="flex items-center gap-3">
               <MapPin className="h-5 w-5 text-muted-foreground" />
               <span className="text-foreground">{contact.location}</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <Building className="h-5 w-5 text-muted-foreground" />
+              <span className="text-foreground">{sectorName}</span>
             </div>
             <Separator />
             <div className="flex gap-2 pt-2">
@@ -98,12 +145,11 @@ async function ContactDetails({ id }: { id: string }) {
           <CardHeader>
             <div className="flex justify-between items-center">
               <CardTitle>Historial de Interacciones</CardTitle>
-              {contact.interactions.length > 0 && <InteractionSummary contact={contact} />}
             </div>
           </CardHeader>
           <CardContent>
             <InteractionForm contactId={contact.id} />
-            <InteractionList interactions={contact.interactions} />
+            <InteractionList interactions={contact.interactions || []} />
           </CardContent>
         </Card>
       </div>
@@ -119,9 +165,11 @@ function ContactDetailsSkeleton() {
           <CardHeader className="text-center">
             <Skeleton className="mx-auto h-24 w-24 rounded-full mb-4" />
             <Skeleton className="h-8 w-40 mx-auto" />
+            <Skeleton className="h-6 w-32 mx-auto mt-2" />
           </CardHeader>
           <CardContent className="space-y-4">
             <Separator />
+            <Skeleton className="h-6 w-full" />
             <Skeleton className="h-6 w-full" />
             <Skeleton className="h-6 w-full" />
             <Skeleton className="h-6 w-full" />

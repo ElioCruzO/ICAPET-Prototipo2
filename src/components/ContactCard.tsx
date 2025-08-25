@@ -43,6 +43,35 @@ const getSectorIdForColor = (contact: Contact): string => {
   return contact.sector?.id || contact.sector?.nombre.toLowerCase().replace(/\s+/g, '-') || 'otros';
 };
 
+// Función para obtener la cantidad de interacciones (maneja el caso undefined)
+const getInteractionsCount = (contact: Contact): number => {
+  return contact.interactions?.length || 0;
+};
+
+// Función para obtener la última interacción (maneja el caso undefined)
+const getLastInteractionDate = (contact: Contact): string | null => {
+  if (!contact.interactions || contact.interactions.length === 0) {
+    return null;
+  }
+  
+  // Ordenar por fecha (más reciente primero) y obtener la primera
+  const sortedInteractions = [...contact.interactions].sort((a, b) => 
+    new Date(b.date).getTime() - new Date(a.date).getTime()
+  );
+  
+  return sortedInteractions[0].date;
+};
+
+// Función para formatear la fecha
+const formatDate = (dateString: string): string => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('es-ES', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  });
+};
+
 export default function ContactCard({ contact }: ContactCardProps) {
   const initials = contact.name
     .split(' ')
@@ -52,6 +81,8 @@ export default function ContactCard({ contact }: ContactCardProps) {
   const sectorName = getSectorName(contact);
   const sectorIdForColor = getSectorIdForColor(contact);
   const sectorColor = getSectorColor(sectorIdForColor, contact.sector?.nombre);
+  const interactionsCount = getInteractionsCount(contact);
+  const lastInteractionDate = getLastInteractionDate(contact);
 
   return (
     <Link href={`/contacts/${contact.id}`} className="block hover:shadow-lg transition-shadow duration-200 rounded-lg">
