@@ -6,7 +6,7 @@ type SectorFilterProps = {
   onSelect: (sector: string) => void;
 };
 
-export default function SectorFilter({ onSelect }: SectorFilterProps) {
+export default function SectorList({ onSelect }: SectorFilterProps) {
   const sectores = [
     "Autoridades municipales",
     "Educación media superior",

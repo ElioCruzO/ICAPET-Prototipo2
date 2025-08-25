@@ -16,8 +16,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { addContact, updateContact } from "@/lib/actions";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
+import SectorList from "./SectorList";
 
 interface ContactFormProps {
   contact?: Contact;
@@ -29,24 +30,9 @@ const contactSchema = z.object({
   email: z.string().email("Dirección de correo electrónico inválida."),
   phone: z.string().min(10, "El número de teléfono es demasiado corto."),
   location: z.string().min(2, "La ubicación es obligatoria."),
-  sectorId: z.string().min(1, "Debe seleccionar un sector."),
+  sector: z.string().min(1, "Debe seleccionar un sector."),
   cargo: z.string().min(2, "El cargo es obligatorio."),
 });
-
-// Lista de sectores
-const sectores = [
-  "Autoridades municipales",
-  "Educación media superior",
-  "Reclusorios",
-  "Gobierno del estado",
-  "Gobierno federal",
-  "Oficina centrales",
-  "Gasolineras",
-  "Organizaciones productivas",
-  "Empresas",
-  "Organizaciones Empresariales",
-  "Otros",
-];
 
 export default function ContactForm({ contact, setOpen }: ContactFormProps) {
   const { toast } = useToast();
@@ -59,10 +45,17 @@ export default function ContactForm({ contact, setOpen }: ContactFormProps) {
       email: contact?.email || "",
       phone: contact?.phone || "",
       location: contact?.location || "",
-      sectorId: contact?.sector || "",
+      sector: contact?.sector || "",
       cargo: contact?.cargo || "",
     },
   });
+
+  // Sincroniza el sector si estamos editando un contacto
+  useEffect(() => {
+    if (contact?.sector) {
+      form.setValue("sector", contact.sector);
+    }
+  }, [contact, form]);
 
   async function onSubmit(values: z.infer<typeof contactSchema>) {
     setIsSubmitting(true);
@@ -80,7 +73,10 @@ export default function ContactForm({ contact, setOpen }: ContactFormProps) {
           description: `${values.name} ha sido añadido exitosamente.`,
         });
       }
+
+      // Cierra el modal/pestaña después de guardar
       setOpen?.(false);
+
     } catch (error) {
       toast({
         title: "Error",
@@ -155,25 +151,17 @@ export default function ContactForm({ contact, setOpen }: ContactFormProps) {
           )}
         />
 
-        {/* Sector */}
+        {/* Sector usando SectorList */}
         <FormField
           control={form.control}
-          name="sectorId"
-          render={({ field }) => (
+          name="sector"
+          render={() => (
             <FormItem>
               <FormLabel>Sector</FormLabel>
               <FormControl>
-                <select
-                  {...field}
-                  className="w-full rounded-md border border-gray-300 p-2"
-                >
-                  <option value="">Seleccione un sector</option>
-                  {sectores.map((sec) => (
-                    <option key={sec} value={sec}>
-                      {sec}
-                    </option>
-                  ))}
-                </select>
+                <SectorList
+                  onSelect={(sector) => form.setValue("sector", sector)}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
