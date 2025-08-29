@@ -8,6 +8,7 @@ import {
   Edit,
   Trash2,
   Building,
+  ChevronDown,
 } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -20,18 +21,17 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
+  DialogTrigger
 } from "@/components/ui/dialog";
 import ContactForm from "@/components/ContactForm";
 import DeleteContactDialog from "@/components/DeleteContactDialog";
 import InteractionList from "@/components/InteractionList";
 import InteractionForm from "@/components/InteractionForm";
-import InteractionSummary from "@/components/InteractionSummary";
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 
-// Mapeo de sectores a colores (debe coincidir con el de ContactCard)
+// Mapeo de sectores a colores
 const sectorColors: Record<string, string> = {
   'autoridades-municipales': 'bg-blue-500',
   'educacion-media-superior': 'bg-green-500',
@@ -81,6 +81,7 @@ async function ContactDetails({ id }: { id: string }) {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      {/* Columna izquierda - Información del contacto */}
       <div className="lg:col-span-1">
         <Card>
           <CardHeader className="text-center">
@@ -140,16 +141,139 @@ async function ContactDetails({ id }: { id: string }) {
           </CardContent>
         </Card>
       </div>
+
+      {/* Columna derecha - Acordeón vertical */}
       <div className="lg:col-span-2">
         <Card>
           <CardHeader>
-            <div className="flex justify-between items-center">
-              <CardTitle>Historial de Interacciones</CardTitle>
-            </div>
+            <CardTitle>Detalles</CardTitle>
           </CardHeader>
           <CardContent>
-            <InteractionForm contactId={contact.id} />
-            <InteractionList interactions={contact.interactions || []} />
+            <div className="space-y-0">
+              
+              {/* Radio inputs ocultos para controlar el estado */}
+              <input 
+                type="radio" 
+                id="tab-interacciones" 
+                name="vertical-tabs" 
+                defaultChecked 
+                className="hidden"
+              />
+              <input 
+                type="radio" 
+                id="tab-cursos" 
+                name="vertical-tabs" 
+                className="hidden"
+              />
+
+              {/* Pestañas/Headers */}
+              <div className="flex flex-col">
+                <label 
+                  htmlFor="tab-interacciones" 
+                  className="cursor-pointer border border-b-0 rounded-t-lg px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors duration-200 flex justify-between items-center font-medium"
+                >
+                  <span>Historial de Interacciones</span>
+                  <ChevronDown className="h-4 w-4 transition-transform duration-300" />
+                </label>
+                
+                <label 
+                  htmlFor="tab-cursos" 
+                  className="cursor-pointer border border-t-0 rounded-b-lg px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors duration-200 flex justify-between items-center font-medium"
+                >
+                  <span>Cursos Registrados</span>
+                  <ChevronDown className="h-4 w-4 transition-transform duration-300" />
+                </label>
+              </div>
+
+              {/* Contenedor de contenido con altura fija */}
+              <div className="relative min-h-[500px] border-l border-r border-b rounded-b-lg overflow-hidden">
+                
+                {/* Contenido de Interacciones */}
+                <div 
+                  className="absolute inset-0 p-6 bg-white transition-transform duration-500 ease-in-out transform translate-x-0 opacity-100"
+                  style={{
+                    transform: 'translateX(0)',
+                    opacity: 1
+                  }}
+                  id="content-interacciones"
+                >
+                  <div className="space-y-4">
+                    <InteractionForm contactId={contact.id} />
+                    <InteractionList interactions={contact.interactions || []} />
+                  </div>
+                </div>
+
+                {/* Contenido de Cursos */}
+                <div 
+                  className="absolute inset-0 p-6 bg-white transition-transform duration-500 ease-in-out transform translate-x-full opacity-0"
+                  style={{
+                    transform: 'translateX(100%)',
+                    opacity: 0
+                  }}
+                  id="content-cursos"
+                >
+                  <div className="space-y-4 h-full overflow-y-auto">
+                    <form className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium mb-1">DTA</label>
+                        <input
+                          type="text"
+                          name="dta"
+                          className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                          placeholder="Ingresa DTA"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Nombre del Curso</label>
+                        <input
+                          type="text"
+                          name="nombre"
+                          className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                          placeholder="Nombre del curso"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Estado</label>
+                        <select
+                          name="estado"
+                          className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                        >
+                          <option value="activo">Activo</option>
+                          <option value="terminado">Terminado</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Fecha de Registro</label>
+                        <input
+                          type="date"
+                          name="fecha"
+                          className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Folio</label>
+                        <input
+                          type="text"
+                          name="folio"
+                          className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                          placeholder="Folio"
+                        />
+                      </div>
+
+                      <Button type="submit" className="w-full hover:bg-blue-600 transition-colors duration-200">
+                        Guardar Curso
+                      </Button>
+                    </form>
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -190,12 +314,7 @@ function ContactDetailsSkeleton() {
           <CardContent>
             <div className="space-y-4">
               <Skeleton className="h-20 w-full" />
-              <Skeleton className="h-10 w-32 ml-auto" />
-            </div>
-            <div className="mt-4 space-y-4">
-              <Skeleton className="h-16 w-full" />
-              <Skeleton className="h-16 w-full" />
-              <Skeleton className="h-16 w-full" />
+              <Skeleton className="h-20 w-full" />
             </div>
           </CardContent>
         </Card>
@@ -208,18 +327,65 @@ export default async function ContactDetailPage({ params }: { params: { id: stri
   const { id } = await params;
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="mb-6">
-        <Button variant="ghost" asChild>
-          <Link href="/contacts">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Volver a Contactos
-          </Link>
-        </Button>
+    <>
+      {/* Estilos CSS globales para el acordeón */}
+      <style dangerouslySetInnerHTML={{
+        __html: `
+          /* Cuando se selecciona Interacciones */
+          #tab-interacciones:checked ~ .flex label[for="tab-interacciones"] .h-4 {
+            transform: rotate(180deg);
+          }
+          
+          #tab-interacciones:checked ~ .flex label[for="tab-interacciones"] {
+            background-color: rgb(239 246 255);
+            border-bottom-color: white;
+          }
+          
+          #tab-interacciones:checked ~ .relative #content-interacciones {
+            transform: translateX(0) !important;
+            opacity: 1 !important;
+          }
+          
+          #tab-interacciones:checked ~ .relative #content-cursos {
+            transform: translateX(100%) !important;
+            opacity: 0 !important;
+          }
+
+          /* Cuando se selecciona Cursos */
+          #tab-cursos:checked ~ .flex label[for="tab-cursos"] .h-4 {
+            transform: rotate(180deg);
+          }
+          
+          #tab-cursos:checked ~ .flex label[for="tab-cursos"] {
+            background-color: rgb(239 246 255);
+            border-top-color: white;
+          }
+          
+          #tab-cursos:checked ~ .relative #content-interacciones {
+            transform: translateX(-100%) !important;
+            opacity: 0 !important;
+          }
+          
+          #tab-cursos:checked ~ .relative #content-cursos {
+            transform: translateX(0) !important;
+            opacity: 1 !important;
+          }
+        `
+      }} />
+      
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-6">
+          <Button variant="ghost" asChild>
+            <Link href="/contacts">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Volver a Contactos
+            </Link>
+          </Button>
+        </div>
+        <Suspense fallback={<ContactDetailsSkeleton />}>
+          <ContactDetails id={id} />
+        </Suspense>
       </div>
-      <Suspense fallback={<ContactDetailsSkeleton />}>
-        <ContactDetails id={id} />
-      </Suspense>
-    </div>
+    </>
   );
 }
