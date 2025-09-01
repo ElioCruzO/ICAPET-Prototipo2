@@ -165,23 +165,34 @@ async function ContactDetails({ id }: { id: string }) {
                 name="vertical-tabs" 
                 className="hidden"
               />
+              <input 
+                type="radio" 
+                id="tab-listaC" 
+                name="vertical-tabs" 
+                className="hidden"
+              />
 
               {/* Pestañas/Headers */}
-              <div className="flex flex-col">
+              <div className="flex flex-row gap-2">
                 <label 
                   htmlFor="tab-interacciones" 
-                  className="cursor-pointer border border-b-0 rounded-t-lg px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors duration-200 flex justify-between items-center font-medium"
+                  className="cursor-pointer border rounded-lg px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors duration-200 font-medium"
                 >
-                  <span>Historial de Interacciones</span>
-                  <ChevronDown className="h-4 w-4 transition-transform duration-300" />
+                  Historial de Interacciones
                 </label>
                 
                 <label 
                   htmlFor="tab-cursos" 
-                  className="cursor-pointer border border-t-0 rounded-b-lg px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors duration-200 flex justify-between items-center font-medium"
+                  className="cursor-pointer border rounded-lg px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors duration-200 font-medium"
                 >
-                  <span>Cursos Registrados</span>
-                  <ChevronDown className="h-4 w-4 transition-transform duration-300" />
+                  Registrar Cursos
+                </label>
+
+                <label 
+                  htmlFor="tab-listaC" 
+                  className="cursor-pointer border rounded-lg px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors duration-200 font-medium"
+                >
+                  Lista de Cursos
                 </label>
               </div>
 
@@ -190,7 +201,7 @@ async function ContactDetails({ id }: { id: string }) {
                 
                 {/* Contenido de Interacciones */}
                 <div 
-                  className="absolute inset-0 p-6 bg-white transition-transform duration-500 ease-in-out transform translate-x-0 opacity-100"
+                  className="absolute inset-0 p-6 bg-white transition-transform duration-500 ease-in-out transform translate-x-0 opacity-100 overflow-y-auto"
                   style={{
                     transform: 'translateX(0)',
                     opacity: 1
@@ -205,14 +216,14 @@ async function ContactDetails({ id }: { id: string }) {
 
                 {/* Contenido de Cursos */}
                 <div 
-                  className="absolute inset-0 p-6 bg-white transition-transform duration-500 ease-in-out transform translate-x-full opacity-0"
+                  className="absolute inset-0 p-6 bg-white transition-transform duration-500 ease-in-out transform translate-x-full opacity-0 overflow-y-auto"
                   style={{
                     transform: 'translateX(100%)',
                     opacity: 0
                   }}
                   id="content-cursos"
                 >
-                  <div className="space-y-4 h-full overflow-y-auto">
+                  <div className="space-y-4">
                     <form className="space-y-4">
                       <div>
                         <label className="block text-sm font-medium mb-1">DTA</label>
@@ -223,7 +234,6 @@ async function ContactDetails({ id }: { id: string }) {
                           placeholder="Ingresa DTA"
                         />
                       </div>
-
                       <div>
                         <label className="block text-sm font-medium mb-1">Nombre del Curso</label>
                         <input
@@ -233,7 +243,6 @@ async function ContactDetails({ id }: { id: string }) {
                           placeholder="Nombre del curso"
                         />
                       </div>
-
                       <div>
                         <label className="block text-sm font-medium mb-1">Estado</label>
                         <select
@@ -242,9 +251,9 @@ async function ContactDetails({ id }: { id: string }) {
                         >
                           <option value="activo">Activo</option>
                           <option value="terminado">Terminado</option>
+                          <option value="inconcluso">Inconcluso</option>
                         </select>
                       </div>
-
                       <div>
                         <label className="block text-sm font-medium mb-1">Fecha de Registro</label>
                         <input
@@ -253,17 +262,6 @@ async function ContactDetails({ id }: { id: string }) {
                           className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                         />
                       </div>
-
-                      <div>
-                        <label className="block text-sm font-medium mb-1">Folio</label>
-                        <input
-                          type="text"
-                          name="folio"
-                          className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                          placeholder="Folio"
-                        />
-                      </div>
-
                       <Button type="submit" className="w-full hover:bg-blue-600 transition-colors duration-200">
                         Guardar Curso
                       </Button>
@@ -271,8 +269,64 @@ async function ContactDetails({ id }: { id: string }) {
                   </div>
                 </div>
 
+                {/* Contenido de Lista de Cursos */}
+                <div 
+                  className="absolute inset-0 bg-white transition-transform duration-500 ease-in-out transform translate-x-full opacity-0 flex flex-col"
+                  style={{
+                    transform: 'translateX(100%)',
+                    opacity: 0
+                  }}
+                  id="content-listaC"
+                >
+                  {/* Header fijo */}
+                  <div className="p-6 pb-4 border-b bg-white flex-shrink-0">
+                    <h3 className="text-lg font-semibold">Lista de Cursos Registrados</h3>
+                  </div>
+                  
+                  {/* Contenido scrolleable */}
+                  <div className="flex-1 overflow-hidden">
+                    <div className="h-full overflow-y-auto px-6 pb-6">
+                      <div className="overflow-x-auto">
+                        <table className="min-w-full border border-gray-300 rounded-lg">
+                          <thead className="bg-gray-100 sticky top-0 z-10">
+                            <tr>
+                              <th className="px-4 py-3 text-left border-b font-medium">DTA</th>
+                              <th className="px-4 py-3 text-left border-b font-medium">Nombre del Curso</th>
+                              <th className="px-4 py-3 text-left border-b font-medium">Estado</th>
+                              <th className="px-4 py-3 text-left border-b font-medium">Fecha de Registro</th>
+                              <th className="px-4 py-3 text-left border-b font-medium">Ediar</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td className="px-4 py-2 border">001</td>
+                              <td className="px-4 py-2 border">Introducción a React</td>
+                              <td className="px-4 py-2 border">Activo</td>
+                              <td className="px-4 py-2 border">2025-08-29</td>
+                              <td className="px-4 py-2 border text-center">
+                                <button className="bg-yellow-500 text-white px-3 py-1 rounded-lg hover:bg-yellow-600">
+                                  Editar
+                                </button>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td className="px-4 py-2 border">002</td>
+                              <td className="px-4 py-2 border">Bases de Datos</td>
+                              <td className="px-4 py-2 border">Finalizado</td>
+                              <td className="px-4 py-2 border">2025-07-20</td>
+                              <td className="px-4 py-2 border text-center">
+                                <button className="bg-yellow-500 text-white px-3 py-1 rounded-lg hover:bg-yellow-600">
+                                  Editar
+                                </button>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>  
               </div>
-
             </div>
           </CardContent>
         </Card>
@@ -330,48 +384,84 @@ export default async function ContactDetailPage({ params }: { params: { id: stri
     <>
       {/* Estilos CSS globales para el acordeón */}
       <style dangerouslySetInnerHTML={{
-        __html: `
-          /* Cuando se selecciona Interacciones */
-          #tab-interacciones:checked ~ .flex label[for="tab-interacciones"] .h-4 {
-            transform: rotate(180deg);
-          }
-          
-          #tab-interacciones:checked ~ .flex label[for="tab-interacciones"] {
-            background-color: rgb(239 246 255);
-            border-bottom-color: white;
-          }
-          
-          #tab-interacciones:checked ~ .relative #content-interacciones {
-            transform: translateX(0) !important;
-            opacity: 1 !important;
-          }
-          
-          #tab-interacciones:checked ~ .relative #content-cursos {
-            transform: translateX(100%) !important;
-            opacity: 0 !important;
-          }
+  __html: `
+    /* Estructura general - los labels ahora están en flex-row */
+    #tab-interacciones:checked ~ .flex-row label[for="tab-interacciones"],
+    #tab-cursos:checked ~ .flex-row label[for="tab-cursos"],
+    #tab-listaC:checked ~ .flex-row label[for="tab-listaC"] {
+      background-color: rgb(239 246 255);
+      border-color: rgb(59 130 246);
+    }
 
-          /* Cuando se selecciona Cursos */
-          #tab-cursos:checked ~ .flex label[for="tab-cursos"] .h-4 {
-            transform: rotate(180deg);
-          }
-          
-          #tab-cursos:checked ~ .flex label[for="tab-cursos"] {
-            background-color: rgb(239 246 255);
-            border-top-color: white;
-          }
-          
-          #tab-cursos:checked ~ .relative #content-interacciones {
-            transform: translateX(-100%) !important;
-            opacity: 0 !important;
-          }
-          
-          #tab-cursos:checked ~ .relative #content-cursos {
-            transform: translateX(0) !important;
-            opacity: 1 !important;
-          }
-        `
-      }} />
+    /* Cuando se selecciona Interacciones */
+    #tab-interacciones:checked ~ .relative #content-interacciones {
+      transform: translateX(0) !important;
+      opacity: 1 !important;
+    }
+    #tab-interacciones:checked ~ .relative #content-cursos,
+    #tab-interacciones:checked ~ .relative #content-listaC {
+      transform: translateX(100%) !important;
+      opacity: 0 !important;
+    }
+
+    /* Cuando se selecciona Cursos */
+    #tab-cursos:checked ~ .relative #content-cursos {
+      transform: translateX(0) !important;
+      opacity: 1 !important;
+    }
+    #tab-cursos:checked ~ .relative #content-interacciones,
+    #tab-cursos:checked ~ .relative #content-listaC {
+      transform: translateX(-100%) !important;
+      opacity: 0 !important;
+    }
+
+    /* Cuando se selecciona Lista de Cursos */
+    #tab-listaC:checked ~ .relative #content-listaC {
+      transform: translateX(0) !important;
+      opacity: 1 !important;
+    }
+    #tab-listaC:checked ~ .relative #content-interacciones,
+    #tab-listaC:checked ~ .relative #content-cursos {
+      transform: translateX(-100%) !important;
+      opacity: 0 !important;
+    }
+
+    /* Estados iniciales */
+    #content-interacciones {
+      transform: translateX(0);
+      opacity: 1;
+    }
+    #content-cursos, #content-listaC {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    
+    /* Personalizar scrollbar */
+    #content-listaC .overflow-y-auto::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    #content-listaC .overflow-y-auto::-webkit-scrollbar-track {
+      background: #f1f5f9;
+      border-radius: 6px;
+    }
+    
+    #content-listaC .overflow-y-auto::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 6px;
+    }
+    
+    #content-listaC .overflow-y-auto::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+    
+    /* Para Firefox */
+    #content-listaC .overflow-y-auto {
+      scrollbar-width: thin;
+      scrollbar-color: #cbd5e1 #f1f5f9;
+    }
+  `
+}} />
       
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-6">
