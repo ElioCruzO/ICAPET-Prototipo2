@@ -1,5 +1,6 @@
+// src/app/contacts/page.tsx
 import { Suspense } from "react";
-import { Plus, Search } from "lucide-react";
+import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -10,43 +11,44 @@ import {
 } from "@/components/ui/dialog";
 import ContactList from "@/components/ContactList";
 import ContactForm from "@/components/ContactForm";
-import { Input } from "@/components/ui/input";
-import { getContacts } from "@/lib/data";
 import { Skeleton } from "@/components/ui/skeleton";
 import SearchBar from "@/components/SearchBar";
 import SectorFilter from "@/components/SectorFilter";
+import { getContacts } from "@/lib/data";
 
+// 👉 Este componente obtiene los contactos desde la DB
 async function Contacts({ query }: { query: string }) {
   const contacts = await getContacts(query);
   return <ContactList contacts={contacts} />;
 }
 
+// 👉 Componente skeleton mientras carga
 function ContactsSkeleton() {
   return (
     <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {Array.from({ length: 8 }).map((_, i) => (
-         <div key={i} className="p-4 border rounded-lg space-y-3">
-           <div className="flex items-center gap-4">
-             <Skeleton className="h-12 w-12 rounded-full" />
-             <div className="space-y-2">
-               <Skeleton className="h-4 w-32" />
-               <Skeleton className="h-4 w-24" />
-             </div>
-           </div>
-           <Skeleton className="h-4 w-full" />
-           <Skeleton className="h-4 w-full" />
-           <Skeleton className="h-4 w-full" />
-         </div>
+        <div key={i} className="p-4 border rounded-lg space-y-3">
+          <div className="flex items-center gap-4">
+            <Skeleton className="h-12 w-12 rounded-full" />
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-32" />
+              <Skeleton className="h-4 w-24" />
+            </div>
+          </div>
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-full" />
+        </div>
       ))}
     </div>
   );
 }
 
-export default function ContactsPage({
-  searchParams,
-}: {
-  searchParams?: { query?: string };
+// 👉 Página principal de contactos
+export default async function ContactsPage(props: {
+  searchParams: Promise<{ query?: string }>;
 }) {
+  const searchParams = await props.searchParams;
   const query = searchParams?.query || "";
 
   return (
@@ -54,10 +56,13 @@ export default function ContactsPage({
       <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
         <h1 className="text-3xl font-bold text-foreground">Contactos</h1>
         <div className="flex w-full sm:w-auto gap-2">
-          <SectorFilter></SectorFilter>
-          
+          {/* Filtro por sector */}
+          <SectorFilter />
+
+          {/* Barra de búsqueda */}
           <SearchBar placeholder="Buscar contactos..." />
 
+          {/* Botón para añadir contacto */}
           <Dialog>
             <DialogTrigger asChild>
               <Button>
@@ -73,6 +78,8 @@ export default function ContactsPage({
           </Dialog>
         </div>
       </div>
+
+      {/* Lista de contactos con suspense */}
       <Suspense key={query} fallback={<ContactsSkeleton />}>
         <Contacts query={query} />
       </Suspense>

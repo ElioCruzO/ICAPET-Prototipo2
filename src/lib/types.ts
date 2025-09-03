@@ -9,6 +9,14 @@ export interface Interaction {
   notes: string;
 }
 
+export interface Curso {
+  dta: string;          // id del curso
+  contactoId: string;   // FK hacia contactos
+  nombre: string;
+  estado: string;
+  fecha: string;        // ISO date string
+}
+
 export interface Contact {
   id: string;
   name: string;
@@ -16,7 +24,10 @@ export interface Contact {
   email: string;
   location: string;
   sectorId: string;   // FK hacia sectores
-  sector?: Sector;    // objeto sector (opcional para cuando hacemos JOIN)
+  sector?: Sector;    // objeto sector (cuando se hace JOIN)
   cargo: string;
+  folio: string;     // nuevo campo
+  fechaVinculacion?: string; // ISO date string
   interactions?: Interaction[];
+  cursos?: Curso[];   // relación con cursos
 }

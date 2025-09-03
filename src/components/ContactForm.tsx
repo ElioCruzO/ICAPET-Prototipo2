@@ -32,6 +32,8 @@ const contactSchema = z.object({
   location: z.string().min(2, "La ubicación es obligatoria."),
   sector: z.string().min(1, "Debe seleccionar un sector."),
   cargo: z.string().min(2, "El cargo es obligatorio."),
+  folio: z.string().min(1, "El folio es obligatorio."),
+  fecha_vinculacion: z.string().min(1, "La fecha de vinculación es obligatoria."),
 });
 
 export default function ContactForm({ contact, setOpen }: ContactFormProps) {
@@ -47,6 +49,8 @@ export default function ContactForm({ contact, setOpen }: ContactFormProps) {
       location: contact?.location || "",
       sector: contact?.sector || "",
       cargo: contact?.cargo || "",
+      folio: contact?.folio || "",
+      fecha_vinculacion: contact?.fecha_vinculacion || "",
     },
   });
 
@@ -177,6 +181,36 @@ export default function ContactForm({ contact, setOpen }: ContactFormProps) {
               <FormLabel>Cargo</FormLabel>
               <FormControl>
                 <Input placeholder="Community Manager" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Folio */}
+        <FormField
+          control={form.control}
+          name="folio"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Folio</FormLabel>
+              <FormControl>
+                <Input placeholder="F12345" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Fecha de Vinculación */}
+        <FormField
+          control={form.control}
+          name="fecha_vinculacion"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Fecha de Vinculación</FormLabel>
+              <FormControl>
+                <Input type="date" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
