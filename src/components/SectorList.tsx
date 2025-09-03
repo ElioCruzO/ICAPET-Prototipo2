@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-type SectorFilterProps = {
+type SectorListProps = {
   onSelect: (sector: string) => void;
+  defaultValue?: string; // Valor inicial opcional
 };
 
-export default function SectorList({ onSelect }: SectorFilterProps) {
+export default function SectorList({ onSelect, defaultValue = "" }: SectorListProps) {
   const sectores = [
     "Autoridades municipales",
     "Educación media superior",
@@ -23,21 +24,29 @@ export default function SectorList({ onSelect }: SectorFilterProps) {
 
   const [selectedSector, setSelectedSector] = useState("");
 
-  const handleChange = (sector: string) => {
-    setSelectedSector(sector);
-    onSelect(sector); // Devuelve el sector seleccionado
+  // Cargar valor inicial
+  useEffect(() => {
+    if (defaultValue && typeof defaultValue === "string") {
+      setSelectedSector(defaultValue);
+      onSelect(defaultValue);
+    }
+  }, [defaultValue, onSelect]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedSector(e.target.value);
+    onSelect(e.target.value);
   };
 
   return (
     <select
-      className="border rounded p-2"
       value={selectedSector}
-      onChange={(e) => handleChange(e.target.value)}
+      onChange={handleChange}
+      className="border rounded p-2 w-full"
     >
-      <option value="">Selecciona un sector</option>
-      {sectores.map((sec) => (
-        <option key={sec} value={sec}>
-          {sec}
+      <option value="">-- Seleccionar sector --</option>
+      {sectores.map((s) => (
+        <option key={s} value={s}>
+          {s}
         </option>
       ))}
     </select>

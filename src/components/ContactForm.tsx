@@ -16,7 +16,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { addContact, updateContact } from "@/lib/actions";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import SectorList from "./SectorList";
 
@@ -53,13 +53,6 @@ export default function ContactForm({ contact, setOpen }: ContactFormProps) {
       fecha_vinculacion: contact?.fecha_vinculacion || "",
     },
   });
-
-  // Sincroniza el sector si estamos editando un contacto
-  useEffect(() => {
-    if (contact?.sector) {
-      form.setValue("sector", contact.sector);
-    }
-  }, [contact, form]);
 
   async function onSubmit(values: z.infer<typeof contactSchema>) {
     setIsSubmitting(true);
@@ -164,6 +157,7 @@ export default function ContactForm({ contact, setOpen }: ContactFormProps) {
               <FormLabel>Sector</FormLabel>
               <FormControl>
                 <SectorList
+                  defaultValue={form.getValues("sector")}
                   onSelect={(sector) => form.setValue("sector", sector)}
                 />
               </FormControl>
