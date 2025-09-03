@@ -24,6 +24,7 @@ import {
   DialogTrigger
 } from "@/components/ui/dialog";
 import ContactForm from "@/components/ContactForm";
+import CourseForm from "@/components/Courseform";
 import DeleteContactDialog from "@/components/DeleteContactDialog";
 import InteractionList from "@/components/InteractionList";
 import InteractionForm from "@/components/InteractionForm";
@@ -161,12 +162,6 @@ async function ContactDetails({ id }: { id: string }) {
               />
               <input 
                 type="radio" 
-                id="tab-cursos" 
-                name="vertical-tabs" 
-                className="hidden"
-              />
-              <input 
-                type="radio" 
                 id="tab-listaC" 
                 name="vertical-tabs" 
                 className="hidden"
@@ -180,19 +175,12 @@ async function ContactDetails({ id }: { id: string }) {
                 >
                   Historial de Interacciones
                 </label>
-                
-                <label 
-                  htmlFor="tab-cursos" 
-                  className="cursor-pointer border rounded-lg px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors duration-200 font-medium"
-                >
-                  Registrar Cursos
-                </label>
 
                 <label 
                   htmlFor="tab-listaC" 
                   className="cursor-pointer border rounded-lg px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors duration-200 font-medium"
                 >
-                  Lista de Cursos
+                  Cursos
                 </label>
               </div>
 
@@ -279,8 +267,21 @@ async function ContactDetails({ id }: { id: string }) {
                   id="content-listaC"
                 >
                   {/* Header fijo */}
-                  <div className="p-6 pb-4 border-b bg-white flex-shrink-0">
-                    <h3 className="text-lg font-semibold">Lista de Cursos Registrados</h3>
+                  <div className="p-6 pb-4 border-b bg-white flex-shrink-0"> 
+                    <div className="flex justify-between ittems-center">
+                      <h3 className="text-lg font-semibold">Lista de Cursos Registrados</h3>
+                      <Dialog> 
+                        <DialogTrigger asChild> 
+                          <button className="bg-yellow-500 text-white px-3 py-1 rounded-lg hover:bg-yellow-600">Agregar curso</button> 
+                        </DialogTrigger> 
+                        <DialogContent className="sm:max-w-[425px]"> 
+                          <DialogHeader> 
+                            <DialogTitle> Agregar Curso</DialogTitle> 
+                          </DialogHeader>
+                          <CourseForm course={null} /> 
+                        </DialogContent> 
+                              </Dialog> 
+                    </div>
                   </div>
                   
                   {/* Contenido scrolleable */}
@@ -295,6 +296,7 @@ async function ContactDetails({ id }: { id: string }) {
                               <th className="px-4 py-3 text-left border-b font-medium">Estado</th>
                               <th className="px-4 py-3 text-left border-b font-medium">Fecha de Registro</th>
                               <th className="px-4 py-3 text-left border-b font-medium">Ediar</th>
+                              <th className="px-4 py-3 text-left border-b font-medium">Eliminar</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -308,6 +310,11 @@ async function ContactDetails({ id }: { id: string }) {
                                   Editar
                                 </button>
                               </td>
+                              <td className="px-4 py-2 border text-center">
+                                <button className="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600">
+                                  Eliminar
+                                </button>
+                              </td>
                             </tr>
                             <tr>
                               <td className="px-4 py-2 border">002</td>
@@ -317,6 +324,11 @@ async function ContactDetails({ id }: { id: string }) {
                               <td className="px-4 py-2 border text-center">
                                 <button className="bg-yellow-500 text-white px-3 py-1 rounded-lg hover:bg-yellow-600">
                                   Editar
+                                </button>
+                              </td>
+                              <td className="px-4 py-2 border text-center">
+                                <button className="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600">
+                                  Eliminar
                                 </button>
                               </td>
                             </tr>
@@ -401,17 +413,6 @@ export default async function ContactDetailPage({ params }: { params: { id: stri
     #tab-interacciones:checked ~ .relative #content-cursos,
     #tab-interacciones:checked ~ .relative #content-listaC {
       transform: translateX(100%) !important;
-      opacity: 0 !important;
-    }
-
-    /* Cuando se selecciona Cursos */
-    #tab-cursos:checked ~ .relative #content-cursos {
-      transform: translateX(0) !important;
-      opacity: 1 !important;
-    }
-    #tab-cursos:checked ~ .relative #content-interacciones,
-    #tab-cursos:checked ~ .relative #content-listaC {
-      transform: translateX(-100%) !important;
       opacity: 0 !important;
     }
 
