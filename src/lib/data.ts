@@ -1,6 +1,6 @@
 import 'server-only';
 import { db } from './db';
-import { Contact, Interaction } from './types';
+import { Contact, Interaction, Curso } from './types';
 import { unstable_noStore as noStore } from 'next/cache';
 
 type ContactFromDB = {
@@ -12,6 +12,8 @@ type ContactFromDB = {
   sectorId: number;
   sectorNombre: string;
   cargo: string;
+  folio: string | null;               // 👈 string en vez de number
+  fecha_vinculacion: string | null;   // 👈 string ISO
 };
 
 type InteractionFromDB = {
@@ -21,11 +23,14 @@ type InteractionFromDB = {
   notes: string;
 };
 
-type SectorFromDB = {
-  id: number;
-  
+type CursoFromDB = {
+  dta: number;
+  contacto_id: number;
   nombre: string;
+  estado: string;
+  fecha: string;
 };
+
 export async function getContacts(query: string): Promise<Contact[]> {
   noStore();
   try {
@@ -33,7 +38,7 @@ export async function getContacts(query: string): Promise<Contact[]> {
     const [rows] = await db.query<ContactFromDB[]>(
       `SELECT c.id, c.name, c.phone, c.email, c.location, 
               c.sector_id AS sectorId, s.nombre AS sectorNombre, 
-              c.cargo
+              c.cargo, c.folio, c.fecha_vinculacion
        FROM contactos c
        JOIN sectores s ON c.sector_id = s.id
        WHERE c.name LIKE ? 
@@ -55,10 +60,13 @@ export async function getContacts(query: string): Promise<Contact[]> {
       sectorId: row.sectorId.toString(),
       sector: {
         id: row.sectorId.toString(),
-        nombre: row.sectorNombre
+        nombre: row.sectorNombre,
       },
       cargo: row.cargo,
-      interactions: []
+      folio: row.folio ?? undefined,
+      fechaVinculacion: row.fecha_vinculacion ?? undefined,
+      interactions: [],
+      cursos: [],
     }));
   } catch (error) {
     console.error('Database Error:', error);
@@ -72,7 +80,7 @@ export async function getContactById(id: string): Promise<Contact | null> {
     const [contactRows] = await db.query<ContactFromDB[]>(
       `SELECT c.id, c.name, c.phone, c.email, c.location, 
               c.sector_id AS sectorId, s.nombre AS sectorNombre, 
-              c.cargo
+              c.cargo, c.folio, c.fecha_vinculacion
        FROM contactos c
        JOIN sectores s ON c.sector_id = s.id
        WHERE c.id = ?`,
@@ -88,6 +96,11 @@ export async function getContactById(id: string): Promise<Contact | null> {
       [id]
     );
 
+    const [cursoRows] = await db.query<CursoFromDB[]>(
+      'SELECT * FROM cursos WHERE contacto_id = ? ORDER BY fecha DESC',
+      [id]
+    );
+
     return {
       id: contact.id.toString(),
       name: contact.name,
@@ -97,15 +110,23 @@ export async function getContactById(id: string): Promise<Contact | null> {
       sectorId: contact.sectorId.toString(),
       sector: {
         id: contact.sectorId.toString(),
-        nombre: contact.sectorNombre
+        nombre: contact.sectorNombre,
       },
       cargo: contact.cargo,
+      folio: contact.folio ?? undefined,
+      fechaVinculacion: contact.fecha_vinculacion ?? undefined,
       interactions: interactionRows.map(i => ({
         id: i.id.toString(),
-        contacto_id: i.contacto_id.toString(),
         date: i.date,
-        notes: i.notes
-      }))
+        notes: i.notes,
+      })),
+      cursos: cursoRows.map(c => ({
+        dta: c.dta.toString(),
+        contactoId: c.contacto_id.toString(),
+        nombre: c.nombre,
+        estado: c.estado,
+        fecha: c.fecha,
+      })),
     };
   } catch (error) {
     console.error('Database Error:', error);

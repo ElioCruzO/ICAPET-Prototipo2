@@ -5,7 +5,7 @@ import { db } from './db';
 import { z } from 'zod';
 import { Contact, Interaction } from './types';
 
-// Esquemas de validación
+// Esquema de validación de contacto (folio ahora es string)
 const contactSchema = z.object({
   name: z.string().min(2),
   email: z.string().email(),
@@ -13,15 +13,18 @@ const contactSchema = z.object({
   location: z.string().min(2),
   sector: z.string().min(2),
   cargo: z.string().min(2),
+  folio: z.string().optional(),
+  fechaVinculacion: z.string().optional(), // YYYY-MM-DD
 });
 
+// Esquema de validación de interacción
 const interactionSchema = z.object({
   notes: z.string().min(1),
 });
 
-// Agregar contacto
+// ➕ Agregar contacto
 export async function addContact(
-  data: Omit<Contact, 'id' | 'interactions' | 'sectorId'>
+  data: Omit<Contact, 'id' | 'interactions' | 'sectorId' | 'cursos'>
 ) {
   try {
     const validatedData = contactSchema.parse(data);
@@ -46,8 +49,9 @@ export async function addContact(
 
     // Insertar contacto
     const [result]: any = await db.execute(
-      `INSERT INTO contactos (name, phone, email, location, sector_id, cargo)
-       VALUES (?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO contactos 
+         (name, phone, email, location, sector_id, cargo, folio, fecha_vinculacion)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         validatedData.name,
         validatedData.phone,
@@ -55,6 +59,8 @@ export async function addContact(
         validatedData.location,
         sectorId,
         validatedData.cargo,
+        validatedData.folio ?? null,
+        validatedData.fechaVinculacion ?? null,
       ]
     );
 
@@ -72,10 +78,10 @@ export async function addContact(
   }
 }
 
-// Actualizar contacto
+// ✏️ Actualizar contacto
 export async function updateContact(
   id: number,
-  data: Partial<Omit<Contact, 'id' | 'interactions' | 'sectorId'>>
+  data: Partial<Omit<Contact, 'id' | 'interactions' | 'sectorId' | 'cursos'>>
 ) {
   try {
     const validatedData = contactSchema.partial().parse(data);
@@ -107,10 +113,15 @@ export async function updateContact(
       delete validatedData.sector;
     }
 
-    // Otros campos
+    // Otros campos (incluyendo folio y fechaVinculacion)
     for (const key in validatedData) {
-      updateFields.push(`${key} = ?`);
-      updateValues.push(validatedData[key as keyof typeof validatedData]);
+      if (key === 'fechaVinculacion') {
+        updateFields.push('fecha_vinculacion = ?');
+        updateValues.push(validatedData[key as keyof typeof validatedData]);
+      } else {
+        updateFields.push(`${key} = ?`);
+        updateValues.push(validatedData[key as keyof typeof validatedData]);
+      }
     }
 
     if (updateFields.length === 0) return;
@@ -132,14 +143,14 @@ export async function updateContact(
   }
 }
 
-// Eliminar contacto
+// 🗑️ Eliminar contacto
 export async function deleteContact(id: string) {
   const [result] = await db.execute('DELETE FROM contactos WHERE id = ?', [id]);
   revalidatePath('/contacts');
   return result;
 }
 
-// Agregar interacción
+// ➕ Agregar interacción
 export async function addInteraction(
   contactId: string,
   data: Omit<Interaction, 'id' | 'date'>
@@ -156,4 +167,19 @@ export async function addInteraction(
   return result;
 }
 
-// Obtener sectores
+// 📌 Obtener sectores
+export async function getSectores() {
+  try {
+    const [rows]: any = await db.query(
+      'SELECT id, nombre FROM sectores ORDER BY nombre ASC'
+    );
+
+    return rows.map((s: any) => ({
+      id: s.id.toString(),
+      nombre: s.nombre,
+    }));
+  } catch (error: any) {
+    console.error('Error obteniendo sectores:', error);
+    throw new Error('No se pudieron cargar los sectores.');
+  }
+}
