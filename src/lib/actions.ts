@@ -22,6 +22,15 @@ const interactionSchema = z.object({
   notes: z.string().min(1),
 });
 
+// Esquema de validación de curso
+const courseSchema = z.object({
+  dta: z.number().int(),
+  contactoId: z.number().int(),
+  nombre: z.string().min(2),
+  estado: z.string().min(2),
+  fecha: z.string(),
+})
+
 // ➕ Agregar contacto
 export async function addContact(
   data: Omit<Contact, 'id' | 'interactions' | 'sectorId' | 'cursos'>
@@ -181,5 +190,93 @@ export async function getSectores() {
   } catch (error: any) {
     console.error('Error obteniendo sectores:', error);
     throw new Error('No se pudieron cargar los sectores.');
+  }
+}
+
+export async function addCourse(data: z.infer<typeof courseSchema>) {
+  try {
+    const validatedData = courseSchema.parse(data);
+
+    const [result]: any = await db.execute(
+      `INSERT INTO cursos (dta, contacto_id, nombre, estado, fecha)
+       VALUES (?, ?, ?, ?, ?)`,
+      [
+        validatedData.dta,
+        validatedData.contactoId,
+        validatedData.nombre,
+        validatedData.estado,
+        validatedData.fecha,
+      ]
+    );
+
+    revalidatePath('/cursos');
+    return { success: true, insertId: result.insertId };
+  } catch (error: any) {
+    console.error('Error agregando curso:', error);
+    return {
+      success: false,
+      error:
+        error.sqlMessage ||
+        error.message ||
+        'No se pudo agregar el curso.',
+    };
+  }
+}
+
+export async function updateCourse(dta: number, data: Partial<z.infer<typeof courseSchema>>) {
+  try {
+    const validatedData = courseSchema.partial().parse(data);
+
+    const updateFields: string[] = [];
+    const updateValues: any[] = [];
+
+    for (const key in validatedData) {
+      updateFields.push(`${key === 'contactoId' ? 'contacto_id' : key} = ?`);
+      updateValues.push(validatedData[key as keyof typeof validatedData]);
+    }
+
+    if (updateFields.length === 0) return;
+
+    const setClause = updateFields.join(', ');
+    const [result] = await db.execute(
+      `UPDATE cursos SET ${setClause} WHERE dta = ?`,
+      [...updateValues, dta]
+    );
+
+    revalidatePath('/cursos');
+    return result;
+  } catch (error: any) {
+    console.error('Error actualizando curso:', error);
+    throw new Error(
+      error.sqlMessage || error.message || 'No se pudo actualizar el curso.'
+    );
+  }
+}
+
+export async function deleteCourse(dta: number) {
+  const [result] = await db.execute('DELETE FROM cursos WHERE dta = ?', [dta]);
+  revalidatePath('/cursos');
+  return result;
+}
+
+export async function getCourses() {
+  try {
+    const [rows]: any = await db.query(
+      `SELECT c.dta, c.nombre, c.estado, c.fecha, ct.name AS contacto
+       FROM cursos c
+       JOIN contactos ct ON c.contacto_id = ct.id
+       ORDER BY c.fecha DESC`
+    );
+
+    return rows.map((c: any) => ({
+      dta: c.dta,
+      nombre: c.nombre,
+      estado: c.estado,
+      fecha: c.fecha,
+      contacto: c.contacto,
+    }));
+  } catch (error: any) {
+    console.error('Error obteniendo cursos:', error);
+    throw new Error('No se pudieron cargar los cursos.');
   }
 }
