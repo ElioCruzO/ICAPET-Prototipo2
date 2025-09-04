@@ -1,5 +1,6 @@
 "use client";
-
+import { getSectores } from "@/lib/actions";
+//Como no pude meti los sectores manualmente okey
 import { useState, useEffect } from "react";
 
 type SectorListProps = {
@@ -8,7 +9,7 @@ type SectorListProps = {
 };
 
 export default function SectorList({ onSelect, defaultValue = "" }: SectorListProps) {
-  const sectores = [
+  const _sectores = [
     "Autoridades municipales",
     "Educación media superior",
     "Reclusorios",
@@ -23,14 +24,27 @@ export default function SectorList({ onSelect, defaultValue = "" }: SectorListPr
   ];
 
   const [selectedSector, setSelectedSector] = useState("");
+  const [sectores, setSectores] = useState<{id: number, nombre: string}[]>([]);
 
   // Cargar valor inicial
   useEffect(() => {
-    if (defaultValue && typeof defaultValue === "string") {
+    // if (defaultValue && typeof defaultValue === "string") {
+      
       setSelectedSector(defaultValue);
       onSelect(defaultValue);
-    }
-  }, [defaultValue, onSelect]);
+    // }
+  }, [defaultValue]);
+
+
+  useEffect(() => {
+    fetchSelectors();
+  }, []);
+
+  const fetchSelectors = async () => {
+    const response = await getSectores();
+    console.log("🚀 ~ response:", response)
+    setSectores(response);
+  }
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedSector(e.target.value);
@@ -41,12 +55,12 @@ export default function SectorList({ onSelect, defaultValue = "" }: SectorListPr
     <select
       value={selectedSector}
       onChange={handleChange}
-      className="border rounded p-2 w-full"
+      className="border rounded p-2 w-full bg-green-60/40"
     >
       <option value="">-- Seleccionar sector --</option>
-      {sectores.map((s) => (
-        <option key={s} value={s}>
-          {s}
+      {sectores.map((selector, index) => (
+        <option key={index} value={selector.id}>
+          {selector.nombre}
         </option>
       ))}
     </select>

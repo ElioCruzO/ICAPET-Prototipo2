@@ -175,16 +175,19 @@ export async function addInteraction(
   revalidatePath(`/contacts/${contactId}`);
   return result;
 }
-
+// y donde deberia de estar?
 // 📌 Obtener sectores
 export async function getSectores() {
   try {
-    const [rows]: any = await db.query(
+    console.log("getting...");
+    
+    const rows: any[] = await db.query(
       'SELECT id, nombre FROM sectores ORDER BY nombre ASC'
     );
+    console.log("🚀 ~ rows:", rows)
 
     return rows.map((s: any) => ({
-      id: s.id.toString(),
+      id: s.id,
       nombre: s.nombre,
     }));
   } catch (error: any) {
