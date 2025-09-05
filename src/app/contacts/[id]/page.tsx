@@ -1,4 +1,5 @@
 import { getContactById } from "@/lib/data";
+import { getCoursesContact, deleteContact } from "@/lib/actions";
 import {
   ArrowLeft,
   Mail,
@@ -64,6 +65,10 @@ const getSectorIdForColor = (contact: any): string => {
   return contact.sector?.id || contact.sector?.nombre?.toLowerCase().replace(/\s+/g, '-') || 'otros';
 };
 
+// Componente para mostrar la tabla de cursos
+async funtion CoursesTable ({ contactId }: { contactId: string }) {
+  const
+}
 async function ContactDetails({ id }: { id: string }) {
   const contact = await getContactById(id);
 
@@ -295,7 +300,7 @@ async function ContactDetails({ id }: { id: string }) {
                               <th className="px-4 py-3 text-left border-b font-medium">Nombre del Curso</th>
                               <th className="px-4 py-3 text-left border-b font-medium">Estado</th>
                               <th className="px-4 py-3 text-left border-b font-medium">Fecha de Registro</th>
-                              <th className="px-4 py-3 text-left border-b font-medium">Ediar</th>
+                              <th className="px-4 py-3 text-left border-b font-medium">Editar</th>
                               <th className="px-4 py-3 text-left border-b font-medium">Eliminar</th>
                             </tr>
                           </thead>

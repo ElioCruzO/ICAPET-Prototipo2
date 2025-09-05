@@ -219,14 +219,6 @@ export default function ContactForm({ contact, setOpen }: ContactFormProps) {
 
         {/* Botones */}
         <div className="flex justify-end gap-2 pt-4">
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={() => setOpen?.(false)}
-            disabled={isSubmitting}
-          >
-            Cancelar
-          </Button>
           <Button type="submit" disabled={isSubmitting}>
             {isSubmitting && <Loader2 className="animate-spin mr-2" />}
             {contact ? "Guardar Cambios" : "Añadir Contacto"}

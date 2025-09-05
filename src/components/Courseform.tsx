@@ -3,7 +3,7 @@
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import type { Course } from "@/lib/types"; // <-- define tu tipo en types.ts
+import type { Curso } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -15,24 +15,23 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { addCourse, updateCourse } from "@/lib/actions"; // <-- crea estas acciones en tu backend
+import { addCourse, updateCourse } from "@/lib/actions";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
 
 interface CourseFormProps {
-  course?: Course;
+  course?: Curso;
   setOpen?: (open: boolean) => void;
 }
 
-// esquema de validación
+// esquema de validación usando los nombres reales de Curso
 const courseSchema = z.object({
   dta: z.string().min(1, "El DTA es obligatorio."),
-  name: z.string().min(2, "El nombre del curso debe tener al menos 2 caracteres."),
-  status: z.string().min(1, "Debe seleccionar un estado."),
-  registrationDate: z.string().min(1, "La fecha de registro es obligatoria."),
+  nombre: z.string().min(2, "El nombre del curso debe tener al menos 2 caracteres."),
+  estado: z.string().min(1, "Debe seleccionar un estado."),
+  fecha: z.string().min(1, "La fecha de registro es obligatoria."),
 });
 
-// Lista de estados
 const estados = ["Activo", "Terminado", "Inconcluso"];
 
 export default function CourseForm({ course, setOpen }: CourseFormProps) {
@@ -43,9 +42,9 @@ export default function CourseForm({ course, setOpen }: CourseFormProps) {
     resolver: zodResolver(courseSchema),
     defaultValues: {
       dta: course?.dta || "",
-      name: course?.name || "",
-      status: course?.status || "",
-      registrationDate: course?.registrationDate || "",
+      nombre: course?.nombre || "",
+      estado: course?.estado || "",
+      fecha: course?.fecha || "",
     },
   });
 
@@ -53,16 +52,16 @@ export default function CourseForm({ course, setOpen }: CourseFormProps) {
     setIsSubmitting(true);
     try {
       if (course) {
-        await updateCourse(course.id, values);
+        await updateCourse(course.dta, values);
         toast({
           title: "Curso Actualizado",
-          description: `${values.name} ha sido actualizado exitosamente.`,
+          description: `${values.nombre} ha sido actualizado exitosamente.`,
         });
       } else {
         await addCourse(values);
         toast({
           title: "Curso Añadido",
-          description: `${values.name} ha sido añadido exitosamente.`,
+          description: `${values.nombre} ha sido añadido exitosamente.`,
         });
       }
       setOpen?.(false);
@@ -98,7 +97,7 @@ export default function CourseForm({ course, setOpen }: CourseFormProps) {
         {/* Nombre del Curso */}
         <FormField
           control={form.control}
-          name="name"
+          name="nombre"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Nombre del Curso</FormLabel>
@@ -113,7 +112,7 @@ export default function CourseForm({ course, setOpen }: CourseFormProps) {
         {/* Estado */}
         <FormField
           control={form.control}
-          name="status"
+          name="estado"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Estado</FormLabel>
@@ -138,7 +137,7 @@ export default function CourseForm({ course, setOpen }: CourseFormProps) {
         {/* Fecha de Registro */}
         <FormField
           control={form.control}
-          name="registrationDate"
+          name="fecha"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Fecha de Registro</FormLabel>
@@ -152,14 +151,6 @@ export default function CourseForm({ course, setOpen }: CourseFormProps) {
 
         {/* Botones */}
         <div className="flex justify-end gap-2 pt-4">
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={() => setOpen?.(false)}
-            disabled={isSubmitting}
-          >
-            Cancelar
-          </Button>
           <Button type="submit" disabled={isSubmitting}>
             {isSubmitting && <Loader2 className="animate-spin mr-2" />}
             {course ? "Guardar Cambios" : "Añadir Curso"}
