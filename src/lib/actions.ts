@@ -11,7 +11,7 @@ const contactSchema = z.object({
   email: z.string().email(),
   phone: z.string().min(10),
   location: z.string().min(2),
-  sector: z.string().min(2),
+  sector: z.number(),
   cargo: z.string().min(2),
   folio: z.string().optional(),
   fechaVinculacion: z.string().optional(), // YYYY-MM-DD
@@ -35,26 +35,28 @@ const courseSchema = z.object({
 export async function addContact(
   data: Omit<Contact, 'id' | 'interactions' | 'sectorId' | 'cursos'>
 ) {
+  console.log("🚀 ~ data:", data)
   try {
     const validatedData = contactSchema.parse(data);
-    const sectorName = validatedData.sector.trim();
+    console.log("🚀 ~ validatedData:", validatedData)
+    // const sectorName = validatedData.sector;
 
     // Buscar o crear sector
-    const [sectorRows]: any = await db.query(
-      'SELECT id FROM sectores WHERE LOWER(nombre) = LOWER(?)',
-      [sectorName]
-    );
+    // const [sectorRows]: any = await db.query(
+    //   'SELECT id FROM sectores WHERE LOWER(nombre) = LOWER(?)',
+    //   [sectorName]
+    // );
 
-    let sectorId: number;
-    if (sectorRows.length > 0) {
-      sectorId = sectorRows[0].id;
-    } else {
-      const [result]: any = await db.execute(
-        'INSERT INTO sectores (nombre) VALUES (?)',
-        [sectorName]
-      );
-      sectorId = result.insertId;
-    }
+    let sectorId: number = validatedData.sector;
+    // if (sectorRows.length > 0) {
+    //   sectorId = sectorRows[0].id;
+    // } else {
+    //   const [result]: any = await db.execute(
+    //     'INSERT INTO sectores (nombre) VALUES (?)',
+    //     [sectorName]
+    //   );
+    //   sectorId = result.insertId;
+    // }
 
     // Insertar contacto
     const [result]: any = await db.execute(
@@ -100,22 +102,22 @@ export async function updateContact(
 
     // Si viene sector, buscar o crear
     if (validatedData.sector) {
-      const sectorName = validatedData.sector.trim();
-      const [sectorRows]: any = await db.query(
-        'SELECT id FROM sectores WHERE LOWER(nombre) = LOWER(?)',
-        [sectorName]
-      );
+      // const sectorName = validatedData.sector;
+      // const [sectorRows]: any = await db.query(
+      //   'SELECT id FROM sectores WHERE LOWER(nombre) = LOWER(?)',
+      //   [sectorName]
+      // );
 
-      let sectorId: number;
-      if (sectorRows.length > 0) {
-        sectorId = sectorRows[0].id;
-      } else {
-        const [result]: any = await db.execute(
-          'INSERT INTO sectores (nombre) VALUES (?)',
-          [sectorName]
-        );
-        sectorId = result.insertId;
-      }
+      let sectorId: number = validatedData.sector;
+      // if (sectorRows.length > 0) {
+      //   sectorId = sectorRows[0].id;
+      // } else {
+      //   const [result]: any = await db.execute(
+      //     'INSERT INTO sectores (nombre) VALUES (?)',
+      //     [sectorName]
+      //   );
+      //   sectorId = result.insertId;
+      // }
 
       updateFields.push('sector_id = ?');
       updateValues.push(sectorId);
@@ -175,16 +177,16 @@ export async function addInteraction(
   revalidatePath(`/contacts/${contactId}`);
   return result;
 }
-// y donde deberia de estar?
+
 // 📌 Obtener sectores
 export async function getSectores() {
   try {
     console.log("getting...");
     
-    const rows: any[] = await db.query(
+    // Desfragmentar la tabla sectores antes de la consulta
+    const [rows]: any[] = await db.query(
       'SELECT id, nombre FROM sectores ORDER BY nombre ASC'
     );
-    console.log("🚀 ~ rows:", rows)
 
     return rows.map((s: any) => ({
       id: s.id,

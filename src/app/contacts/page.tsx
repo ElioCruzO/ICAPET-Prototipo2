@@ -69,7 +69,7 @@ export default async function ContactsPage(props: {
                 <Plus className="mr-2 h-4 w-4" /> Añadir Contacto
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="sm:max-w-[425px] max-h-[95vh] overflow-y-scroll">
               <DialogHeader>
                 <DialogTitle>Añadir Nuevo Contacto</DialogTitle>
               </DialogHeader>

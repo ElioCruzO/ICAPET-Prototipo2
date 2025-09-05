@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import type { Contact } from "@/lib/types";
-import { Button } from "@/components/ui/button";
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import type { Contact } from '@/lib/types';
+import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
@@ -12,13 +12,13 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { useToast } from "@/hooks/use-toast";
-import { addContact, updateContact } from "@/lib/actions";
-import { useState } from "react";
-import { Loader2 } from "lucide-react";
-import SectorList from "./SectorList";
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { useToast } from '@/hooks/use-toast';
+import { addContact, updateContact } from '@/lib/actions';
+import { useEffect, useState } from 'react';
+import { Loader2 } from 'lucide-react';
+import SectorList from './SectorList';
 
 interface ContactFormProps {
   contact?: Contact;
@@ -26,14 +26,16 @@ interface ContactFormProps {
 }
 
 const contactSchema = z.object({
-  name: z.string().min(2, "El nombre debe tener al menos 2 caracteres."),
-  email: z.string().email("Dirección de correo electrónico inválida."),
-  phone: z.string().min(10, "El número de teléfono es demasiado corto."),
-  location: z.string().min(2, "La ubicación es obligatoria."),
-  sector: z.string().min(1, "Debe seleccionar un sector."),
-  cargo: z.string().min(2, "El cargo es obligatorio."),
-  folio: z.string().min(1, "El folio es obligatorio."),
-  fecha_vinculacion: z.string().min(1, "La fecha de vinculación es obligatoria."),
+  name: z.string().min(2, 'El nombre debe tener al menos 2 caracteres.'),
+  email: z.string().email('Dirección de correo electrónico inválida.'),
+  phone: z.string().min(10, 'El número de teléfono es demasiado corto.'),
+  location: z.string().min(2, 'La ubicación es obligatoria.'),
+  sector: z.number(),
+  cargo: z.string().min(2, 'El cargo es obligatorio.'),
+  folio: z.string().min(1, 'El folio es obligatorio.'),
+  fecha_vinculacion: z
+    .string()
+    .min(1, 'La fecha de vinculación es obligatoria.'),
 });
 
 export default function ContactForm({ contact, setOpen }: ContactFormProps) {
@@ -43,16 +45,23 @@ export default function ContactForm({ contact, setOpen }: ContactFormProps) {
   const form = useForm<z.infer<typeof contactSchema>>({
     resolver: zodResolver(contactSchema),
     defaultValues: {
-      name: contact?.name || "",
-      email: contact?.email || "",
-      phone: contact?.phone || "",
-      location: contact?.location || "",
-      sector: contact?.sector || "",
-      cargo: contact?.cargo || "",
-      folio: contact?.folio || "",
-      fecha_vinculacion: contact?.fecha_vinculacion || "",
+      name: contact?.name || '',
+      email: contact?.email || '',
+      phone: contact?.phone || '',
+      location: contact?.location || '',
+      sector: contact?.id || 0,
+      cargo: contact?.cargo || '',
+      folio: contact?.folio || '',
+      fecha_vinculacion: contact?.fecha_vinculacion || '',
     },
   });
+
+  useEffect(() => {
+    console.log(form.getValues('sector'));
+    console.log(form);
+    
+  }, [form]);
+
 
   async function onSubmit(values: z.infer<typeof contactSchema>) {
     setIsSubmitting(true);
@@ -60,25 +69,24 @@ export default function ContactForm({ contact, setOpen }: ContactFormProps) {
       if (contact) {
         await updateContact(contact.id, values);
         toast({
-          title: "Contacto Actualizado",
+          title: 'Contacto Actualizado',
           description: `${values.name} ha sido actualizado exitosamente.`,
         });
       } else {
         await addContact(values);
         toast({
-          title: "Contacto Añadido",
+          title: 'Contacto Añadido',
           description: `${values.name} ha sido añadido exitosamente.`,
         });
       }
 
       // Cierra el modal/pestaña después de guardar
       setOpen?.(false);
-
     } catch (error) {
       toast({
-        title: "Error",
-        description: "No se pudo guardar el contacto. Inténtelo de nuevo.",
-        variant: "destructive",
+        title: 'Error',
+        description: 'No se pudo guardar el contacto. Inténtelo de nuevo.',
+        variant: 'destructive',
       });
     } finally {
       setIsSubmitting(false);
@@ -157,8 +165,8 @@ export default function ContactForm({ contact, setOpen }: ContactFormProps) {
               <FormLabel>Sector</FormLabel>
               <FormControl>
                 <SectorList
-                  defaultValue={form.getValues("sector")}
-                  onSelect={(sector) => form.setValue("sector", sector)}
+                  defaultValue={form.getValues('sector')}
+                  onSelect={(sector) => form.setValue('sector', sector)}
                 />
               </FormControl>
               <FormMessage />
@@ -223,7 +231,7 @@ export default function ContactForm({ contact, setOpen }: ContactFormProps) {
           </Button>
           <Button type="submit" disabled={isSubmitting}>
             {isSubmitting && <Loader2 className="animate-spin mr-2" />}
-            {contact ? "Guardar Cambios" : "Añadir Contacto"}
+            {contact ? 'Guardar Cambios' : 'Añadir Contacto'}
           </Button>
         </div>
       </form>
