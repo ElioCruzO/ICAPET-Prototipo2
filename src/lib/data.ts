@@ -12,8 +12,8 @@ type ContactFromDB = {
   sectorId: number;
   sectorNombre: string;
   cargo: string;
-  folio: string | null;               // 👈 string en vez de number
-  fecha_vinculacion: string | null;   // 👈 string ISO
+  folio: string | null;
+  fecha_vinculacion: string | null;
 };
 
 type InteractionFromDB = {
@@ -45,7 +45,7 @@ export async function getContacts(query: string): Promise<Contact[]> {
           OR c.email LIKE ? 
           OR c.phone LIKE ? 
           OR c.location LIKE ?
-          OR c.cargo LIKE ?
+          OR c.cargo LIKE ? 
           OR s.nombre LIKE ?
        ORDER BY c.name ASC`,
       [searchTerm, searchTerm, searchTerm, searchTerm, searchTerm, searchTerm]
@@ -88,7 +88,6 @@ export async function getContactById(id: string): Promise<Contact | null> {
     );
 
     if (contactRows.length === 0) return null;
-
     const contact = contactRows[0];
 
     const [interactionRows] = await db.query<InteractionFromDB[]>(

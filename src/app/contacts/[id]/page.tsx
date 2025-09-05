@@ -1,5 +1,9 @@
+<<<<<<< HEAD
 import { getContactById } from "@/lib/data";
 import { getCoursesContact, deleteContact } from "@/lib/actions";
+=======
+import { getContactById } from '@/lib/data';
+>>>>>>> 210b55727ff71a6cf6d745f022cb72f2650634c2
 import {
   ArrowLeft,
   Mail,
@@ -10,49 +14,53 @@ import {
   Trash2,
   Building,
   ChevronDown,
-} from "lucide-react";
-import Link from "next/link";
-import { notFound } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Separator } from "@/components/ui/separator";
+} from 'lucide-react';
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Separator } from '@/components/ui/separator';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger
-} from "@/components/ui/dialog";
-import ContactForm from "@/components/ContactForm";
-import CourseForm from "@/components/Courseform";
-import DeleteContactDialog from "@/components/DeleteContactDialog";
-import InteractionList from "@/components/InteractionList";
-import InteractionForm from "@/components/InteractionForm";
-import { Suspense } from "react";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Badge } from "@/components/ui/badge";
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import ContactForm from '@/components/ContactForm';
+import CourseForm from '@/components/Courseform';
+import DeleteContactDialog from '@/components/DeleteContactDialog';
+import InteractionList from '@/components/InteractionList';
+import InteractionForm from '@/components/InteractionForm';
+import { Suspense } from 'react';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Badge } from '@/components/ui/badge';
 
 // Mapeo de sectores a colores
 const sectorColors: Record<string, string> = {
   'autoridades-municipales': 'bg-blue-500',
   'educacion-media-superior': 'bg-green-500',
-  'reclusorios': 'bg-red-500',
+  reclusorios: 'bg-red-500',
   'gobierno-estado': 'bg-purple-500',
   'gobierno-federal': 'bg-indigo-500',
   'oficinas-centrales': 'bg-yellow-500',
-  'gasolineras': 'bg-orange-500',
+  gasolineras: 'bg-orange-500',
   'organizaciones-productivas': 'bg-teal-500',
-  'empresas': 'bg-cyan-500',
+  empresas: 'bg-cyan-500',
   'organizaciones-empresariales': 'bg-pink-500',
-  'otros': 'bg-gray-500'
+  otros: 'bg-gray-500',
 };
 
 // Función para obtener el color según el sector
-const getSectorColor = (sectorId: string, sectorName?: string): string => {
-  return sectorColors[sectorId] || 
-         (sectorName ? sectorColors[sectorName.toLowerCase().replace(/\s+/g, '-')] : 'bg-gray-500') || 
-         'bg-gray-500';
+const getSectorColor = (sector?: any): string => {
+  return (
+    sectorColors[sector.nombre] ||
+    (sector.nombre
+      ? sectorColors[sector.nombre.toLowerCase().replace(/\s+/g, '-')]
+      : 'bg-gray-500') ||
+    'bg-gray-500'
+  );
 };
 
 // Función para obtener el nombre del sector
@@ -62,7 +70,11 @@ const getSectorName = (contact: any): string => {
 
 // Función para obtener el ID del sector para colores
 const getSectorIdForColor = (contact: any): string => {
-  return contact.sector?.id || contact.sector?.nombre?.toLowerCase().replace(/\s+/g, '-') || 'otros';
+  return (
+    contact.sector?.id ||
+    contact.sector?.nombre?.toLowerCase().replace(/\s+/g, '-') ||
+    'otros'
+  );
 };
 
 // Componente para mostrar la tabla de cursos
@@ -77,13 +89,13 @@ async function ContactDetails({ id }: { id: string }) {
   }
 
   const initials = contact.name
-    .split(" ")
+    .split(' ')
     .map((n) => n[0])
-    .join("");
+    .join('');
 
   const sectorName = getSectorName(contact);
-  const sectorIdForColor = getSectorIdForColor(contact);
-  const sectorColor = getSectorColor(sectorIdForColor, contact.sector?.nombre);
+  // const sectorIdForColor = getSectorIdForColor(contact);
+  const sectorColor = getSectorColor(contact.sector);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -92,7 +104,9 @@ async function ContactDetails({ id }: { id: string }) {
         <Card>
           <CardHeader className="text-center">
             <Avatar className="mx-auto h-24 w-24 text-3xl mb-4">
-              <AvatarFallback className={sectorColor}>{initials}</AvatarFallback>
+              <AvatarFallback className={sectorColor}>
+                {initials}
+              </AvatarFallback>
             </Avatar>
             <CardTitle className="text-2xl">{contact.name}</CardTitle>
             <div className="flex justify-center mt-2">
@@ -135,7 +149,7 @@ async function ContactDetails({ id }: { id: string }) {
                   <DialogHeader>
                     <DialogTitle>Editar Contacto</DialogTitle>
                   </DialogHeader>
-                  <ContactForm contact={contact} />
+                  <ContactForm contact={contact}  />
                 </DialogContent>
               </Dialog>
               <DeleteContactDialog contactId={contact.id}>
@@ -156,33 +170,32 @@ async function ContactDetails({ id }: { id: string }) {
           </CardHeader>
           <CardContent>
             <div className="space-y-0">
-              
               {/* Radio inputs ocultos para controlar el estado */}
-              <input 
-                type="radio" 
-                id="tab-interacciones" 
-                name="vertical-tabs" 
-                defaultChecked 
+              <input
+                type="radio"
+                id="tab-interacciones"
+                name="vertical-tabs"
+                defaultChecked
                 className="hidden"
               />
-              <input 
-                type="radio" 
-                id="tab-listaC" 
-                name="vertical-tabs" 
+              <input
+                type="radio"
+                id="tab-listaC"
+                name="vertical-tabs"
                 className="hidden"
               />
 
               {/* Pestañas/Headers */}
               <div className="flex flex-row gap-2">
-                <label 
-                  htmlFor="tab-interacciones" 
+                <label
+                  htmlFor="tab-interacciones"
                   className="cursor-pointer border rounded-lg px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors duration-200 font-medium"
                 >
                   Historial de Interacciones
                 </label>
 
-                <label 
-                  htmlFor="tab-listaC" 
+                <label
+                  htmlFor="tab-listaC"
                   className="cursor-pointer border rounded-lg px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors duration-200 font-medium"
                 >
                   Cursos
@@ -191,35 +204,38 @@ async function ContactDetails({ id }: { id: string }) {
 
               {/* Contenedor de contenido con altura fija */}
               <div className="relative min-h-[500px] border-l border-r border-b rounded-b-lg overflow-hidden">
-                
                 {/* Contenido de Interacciones */}
-                <div 
+                <div
                   className="absolute inset-0 p-6 bg-white transition-transform duration-500 ease-in-out transform translate-x-0 opacity-100 overflow-y-auto"
                   style={{
                     transform: 'translateX(0)',
-                    opacity: 1
+                    opacity: 1,
                   }}
                   id="content-interacciones"
                 >
                   <div className="space-y-4">
                     <InteractionForm contactId={contact.id} />
-                    <InteractionList interactions={contact.interactions || []} />
+                    <InteractionList
+                      interactions={contact.interactions || []}
+                    />
                   </div>
                 </div>
 
                 {/* Contenido de Cursos */}
-                <div 
+                <div
                   className="absolute inset-0 p-6 bg-white transition-transform duration-500 ease-in-out transform translate-x-full opacity-0 overflow-y-auto"
                   style={{
                     transform: 'translateX(100%)',
-                    opacity: 0
+                    opacity: 0,
                   }}
                   id="content-cursos"
                 >
                   <div className="space-y-4">
                     <form className="space-y-4">
                       <div>
-                        <label className="block text-sm font-medium mb-1">DTA</label>
+                        <label className="block text-sm font-medium mb-1">
+                          DTA
+                        </label>
                         <input
                           type="text"
                           name="dta"
@@ -228,7 +244,9 @@ async function ContactDetails({ id }: { id: string }) {
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium mb-1">Nombre del Curso</label>
+                        <label className="block text-sm font-medium mb-1">
+                          Nombre del Curso
+                        </label>
                         <input
                           type="text"
                           name="nombre"
@@ -237,7 +255,9 @@ async function ContactDetails({ id }: { id: string }) {
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium mb-1">Estado</label>
+                        <label className="block text-sm font-medium mb-1">
+                          Estado
+                        </label>
                         <select
                           name="estado"
                           className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
@@ -248,14 +268,19 @@ async function ContactDetails({ id }: { id: string }) {
                         </select>
                       </div>
                       <div>
-                        <label className="block text-sm font-medium mb-1">Fecha de Registro</label>
+                        <label className="block text-sm font-medium mb-1">
+                          Fecha de Registro
+                        </label>
                         <input
                           type="date"
                           name="fecha"
                           className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                         />
                       </div>
-                      <Button type="submit" className="w-full hover:bg-blue-600 transition-colors duration-200">
+                      <Button
+                        type="submit"
+                        className="w-full hover:bg-blue-600 transition-colors duration-200"
+                      >
                         Guardar Curso
                       </Button>
                     </form>
@@ -263,32 +288,36 @@ async function ContactDetails({ id }: { id: string }) {
                 </div>
 
                 {/* Contenido de Lista de Cursos */}
-                <div 
+                <div
                   className="absolute inset-0 bg-white transition-transform duration-500 ease-in-out transform translate-x-full opacity-0 flex flex-col"
                   style={{
                     transform: 'translateX(100%)',
-                    opacity: 0
+                    opacity: 0,
                   }}
                   id="content-listaC"
                 >
                   {/* Header fijo */}
-                  <div className="p-6 pb-4 border-b bg-white flex-shrink-0"> 
+                  <div className="p-6 pb-4 border-b bg-white flex-shrink-0">
                     <div className="flex justify-between ittems-center">
-                      <h3 className="text-lg font-semibold">Lista de Cursos Registrados</h3>
-                      <Dialog> 
-                        <DialogTrigger asChild> 
-                          <button className="bg-yellow-500 text-white px-3 py-1 rounded-lg hover:bg-yellow-600">Agregar curso</button> 
-                        </DialogTrigger> 
-                        <DialogContent className="sm:max-w-[425px]"> 
-                          <DialogHeader> 
-                            <DialogTitle> Agregar Curso</DialogTitle> 
+                      <h3 className="text-lg font-semibold">
+                        Lista de Cursos Registrados
+                      </h3>
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <button className="bg-yellow-500 text-white px-3 py-1 rounded-lg hover:bg-yellow-600">
+                            Agregar curso
+                          </button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-[425px]">
+                          <DialogHeader>
+                            <DialogTitle> Agregar Curso</DialogTitle>
                           </DialogHeader>
-                          <CourseForm course={null} /> 
-                        </DialogContent> 
-                              </Dialog> 
+                          <CourseForm course={null} />
+                        </DialogContent>
+                      </Dialog>
                     </div>
                   </div>
-                  
+
                   {/* Contenido scrolleable */}
                   <div className="flex-1 overflow-hidden">
                     <div className="h-full overflow-y-auto px-6 pb-6">
@@ -296,18 +325,41 @@ async function ContactDetails({ id }: { id: string }) {
                         <table className="min-w-full border border-gray-300 rounded-lg">
                           <thead className="bg-gray-100 sticky top-0 z-10">
                             <tr>
+<<<<<<< HEAD
                               <th className="px-4 py-3 text-left border-b font-medium">DTA</th>
                               <th className="px-4 py-3 text-left border-b font-medium">Nombre del Curso</th>
                               <th className="px-4 py-3 text-left border-b font-medium">Estado</th>
                               <th className="px-4 py-3 text-left border-b font-medium">Fecha de Registro</th>
                               <th className="px-4 py-3 text-left border-b font-medium">Editar</th>
                               <th className="px-4 py-3 text-left border-b font-medium">Eliminar</th>
+=======
+                              <th className="px-4 py-3 text-left border-b font-medium">
+                                DTA
+                              </th>
+                              <th className="px-4 py-3 text-left border-b font-medium">
+                                Nombre del Curso
+                              </th>
+                              <th className="px-4 py-3 text-left border-b font-medium">
+                                Estado
+                              </th>
+                              <th className="px-4 py-3 text-left border-b font-medium">
+                                Fecha de Registro
+                              </th>
+                              <th className="px-4 py-3 text-left border-b font-medium">
+                                Ediar
+                              </th>
+                              <th className="px-4 py-3 text-left border-b font-medium">
+                                Eliminar
+                              </th>
+>>>>>>> 210b55727ff71a6cf6d745f022cb72f2650634c2
                             </tr>
                           </thead>
                           <tbody>
                             <tr>
                               <td className="px-4 py-2 border">001</td>
-                              <td className="px-4 py-2 border">Introducción a React</td>
+                              <td className="px-4 py-2 border">
+                                Introducción a React
+                              </td>
                               <td className="px-4 py-2 border">Activo</td>
                               <td className="px-4 py-2 border">2025-08-29</td>
                               <td className="px-4 py-2 border text-center">
@@ -323,7 +375,9 @@ async function ContactDetails({ id }: { id: string }) {
                             </tr>
                             <tr>
                               <td className="px-4 py-2 border">002</td>
-                              <td className="px-4 py-2 border">Bases de Datos</td>
+                              <td className="px-4 py-2 border">
+                                Bases de Datos
+                              </td>
                               <td className="px-4 py-2 border">Finalizado</td>
                               <td className="px-4 py-2 border">2025-07-20</td>
                               <td className="px-4 py-2 border text-center">
@@ -342,7 +396,7 @@ async function ContactDetails({ id }: { id: string }) {
                       </div>
                     </div>
                   </div>
-                </div>  
+                </div>
               </div>
             </div>
           </CardContent>
@@ -394,14 +448,19 @@ function ContactDetailsSkeleton() {
   );
 }
 
-export default async function ContactDetailPage({ params }: { params: { id: string } }) {
+export default async function ContactDetailPage({
+  params,
+}: {
+  params: { id: string };
+}) {
   const { id } = await params;
 
   return (
     <>
       {/* Estilos CSS globales para el acordeón */}
-      <style dangerouslySetInnerHTML={{
-  __html: `
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
     /* Estructura general - los labels ahora están en flex-row */
     #tab-interacciones:checked ~ .flex-row label[for="tab-interacciones"],
     #tab-cursos:checked ~ .flex-row label[for="tab-cursos"],
@@ -466,9 +525,10 @@ export default async function ContactDetailPage({ params }: { params: { id: stri
       scrollbar-width: thin;
       scrollbar-color: #cbd5e1 #f1f5f9;
     }
-  `
-}} />
-      
+  `,
+        }}
+      />
+
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-6">
           <Button variant="ghost" asChild>

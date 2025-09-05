@@ -1,43 +1,58 @@
-"use client";
+'use client';
+import { getSectores } from '@/lib/actions';
+//Como no pude meti los sectores manualmente okey
+import { useState, useEffect } from 'react';
 
-import { useState } from "react";
-
-type SectorFilterProps = {
-  onSelect: (sector: string) => void;
+type SectorListProps = {
+  onSelect: (sector: number) => void;
+  defaultValue?: number; // Valor inicial opcional
 };
 
-export default function SectorList({ onSelect }: SectorFilterProps) {
-  const sectores = [
-    "Autoridades municipales",
-    "Educación media superior",
-    "Reclusorios",
-    "Gobierno del estado",
-    "Gobierno federal",
-    "Oficina centrales",
-    "Gasolineras",
-    "Organizaciones productivas",
-    "Empresas",
-    "Organizaciones Empresariales",
-    "Otros",
-  ];
+export default function SectorList({
+  onSelect,
+  defaultValue = 0,
+}: SectorListProps) {
+  const [selectedSector, setSelectedSector] = useState<number>(0);
+  const [sectores, setSectores] = useState<{ id: number; nombre: string }[]>(
+    []
+  );
 
-  const [selectedSector, setSelectedSector] = useState("");
+  // Fetch de los primeos datos
+  useEffect(() => {
+    fetchSelectors();
+  }, []);
 
-  const handleChange = (sector: string) => {
-    setSelectedSector(sector);
-    onSelect(sector); // Devuelve el sector seleccionado
+  useEffect(() => {
+    setSelectedSector(defaultValue);
+    onSelect(defaultValue);
+    // }
+  }, [defaultValue]);
+
+  const fetchSelectors = async () => {
+    const response = await getSectores();
+    setSectores(response);
+  };
+
+  const handleChange = (e: any) => {
+    console.log("🚀 ~ e:", e)
+    setSelectedSector(e);
+    onSelect(e);
   };
 
   return (
     <select
-      className="border rounded p-2"
       value={selectedSector}
-      onChange={(e) => handleChange(e.target.value)}
+      // onChange={handleChange}
+      className="border rounded p-2 w-full bg-transparent cursor-pointer"
     >
-      <option value="">Selecciona un sector</option>
-      {sectores.map((sec) => (
-        <option key={sec} value={sec}>
-          {sec}
+      <option value="">-- Seleccionar sector --</option>
+      {sectores.map((selector, index) => (
+        <option
+          key={index}
+          value={selector.id}
+          onClick={() => handleChange(selector.id)}
+        >
+          {selector.nombre}
         </option>
       ))}
     </select>

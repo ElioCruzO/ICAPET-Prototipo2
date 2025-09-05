@@ -24,7 +24,7 @@ export interface Contact {
   email: string;
   location: string;
   sectorId: string;   // FK hacia sectores
-  sector?: Sector;    // objeto sector (cuando se hace JOIN)
+  sector?: number;    // objeto sector (cuando se hace JOIN)
   cargo: string;
   folio: string;     // nuevo campo
   fechaVinculacion?: string; // ISO date string
