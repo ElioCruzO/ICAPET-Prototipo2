@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 import { getContacts, getContactById } from "@/lib/data";
 import { getCourses, deleteContact } from "@/lib/actions";
+=======
+import { getContactById } from '@/lib/data';
+import { deleteCourse } from "@/lib/actions";
+>>>>>>> 2dc348061a20b4495e64709f11c83b6ac3553960
 import {
   ArrowLeft,
   Mail,
@@ -9,7 +14,6 @@ import {
   Edit,
   Trash2,
   Building,
-  ChevronDown,
 } from 'lucide-react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -37,26 +41,22 @@ import { Badge } from '@/components/ui/badge';
 const sectorColors: Record<string, string> = {
   'autoridades-municipales': 'bg-blue-500',
   'educacion-media-superior': 'bg-green-500',
-  reclusorios: 'bg-red-500',
+  'reclusorios' : 'bg-red-500',
   'gobierno-estado': 'bg-purple-500',
   'gobierno-federal': 'bg-indigo-500',
   'oficinas-centrales': 'bg-yellow-500',
-  gasolineras: 'bg-orange-500',
+  'gasolineras': 'bg-orange-500',
   'organizaciones-productivas': 'bg-teal-500',
-  empresas: 'bg-cyan-500',
+  'empresas': 'bg-cyan-500',
   'organizaciones-empresariales': 'bg-pink-500',
-  otros: 'bg-gray-500',
+  'otros': 'bg-gray-500',
 };
 
 // Función para obtener el color según el sector
-const getSectorColor = (sector?: any): string => {
-  return (
-    sectorColors[sector.nombre] ||
-    (sector.nombre
-      ? sectorColors[sector.nombre.toLowerCase().replace(/\s+/g, '-')]
-      : 'bg-gray-500') ||
-    'bg-gray-500'
-  );
+const getSectorColor = (sectorId: string, sectorName?: string): string => {
+  return sectorColors[sectorId] || 
+         (sectorName ? sectorColors[sectorName.toLowerCase().replace(/\s+/g, '-')] : 'bg-gray-500') || 
+         'bg-gray-500';
 };
 
 // Función para obtener el nombre del sector
@@ -74,8 +74,82 @@ const getSectorIdForColor = (contact: any): string => {
 };
 
 // Componente para mostrar la tabla de cursos
-async funtion CoursesTable ({ contactId }: { contactId: string }) {
-  const
+async function CoursesTable ({ contactId }: { contactId: string }) {
+  const courses = await getCoursesByContact(contactId);
+
+  const handleDelete = async (dta: string) => {
+    "use server";
+    await deleteCourse(Number(dta));
+  };
+
+  return (
+    <div className="overflow-x-auto">
+      <table className="min-w-full border border-gray-300 rounded-lg">
+        <thead className="bg-gray-100 sticky top-0 z-10">
+          <tr>
+            <th className="px-4 py-3 text-left border-b font-medium">DTA</th>
+            <th className="px-4 py-3 text-left border-b font-medium">Nombre del Curso</th>
+            <th className="px-4 py-3 text-left border-b font-medium">Estado</th>
+            <th className="px-4 py-3 text-left border-b font-medium">Fecha de registro</th>
+            <th className="px-4 py-3 text-left border-b font-medium">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {courses.length  === 0 ?(
+            <tr>
+              <td colSpan={5} className="px-4 py-8 text-center text-gray-500">
+                No hay cursos registrados para este contacto
+              </td>
+            </tr>
+          ) : (
+            courses.map((courses) => (
+              <tr key={courses.dta}>
+                <td className="px-4 py-2 border">{courses.dta}</td>
+                <td className="px-4 py-2 border">{courses.nombre}</td>
+                <td className="px-4 py-2 border">
+                  <Badge
+                    className={
+                      courses.estado === 'Activo' ? 'bg-green-500' :
+                      courses.estado === 'Pendiente' ? 'bg-orange-500' :
+                      courses.estado === 'Terminado' ? 'bg-blue-500':
+                      'bg-yellow-500'
+                    }>
+                      {courses.estado}
+                    </Badge>
+                </td>  
+                <td className="px-4 py-2 border">{courses.fecha}</td>
+                <td className="px-4 py-2 border">
+                    <div className="flex gap-2">
+                      <Dialog>
+                      <DialogTrigger asChild>
+                        <button className="bg-yellow-500 text-white px-3 py-1 rounded-lg hover:bg-yellow-600 text-xs">
+                          Editar
+                        </button>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-[425px]">
+                        <DialogHeader>
+                          <DialogTitle>Editar Curso</DialogTitle>
+                        </DialogHeader>
+                        <CourseForm course={null} contactoId={contactId.id} />
+                      </DialogContent>
+                    </Dialog>
+                    <form action={handleDelete.bind(null, courses.dta)}>
+                      <button 
+                        type="submit"
+                        className="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 text-xs"
+                      >
+                        Eliminar
+                      </button>
+                    </form>
+                    </div>
+                </td>             
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+    </div>
+  )
 }
 async function ContactDetails({ id }: { id: string }) {
   const contact = await getContactById(id);
@@ -90,8 +164,8 @@ async function ContactDetails({ id }: { id: string }) {
     .join('');
 
   const sectorName = getSectorName(contact);
-  // const sectorIdForColor = getSectorIdForColor(contact);
-  const sectorColor = getSectorColor(contact.sector);
+  const sectorIdForColor = getSectorIdForColor(contact);
+  const sectorColor = getSectorColor(getSectorIdForColor, contact.sector?.nombre);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -100,9 +174,7 @@ async function ContactDetails({ id }: { id: string }) {
         <Card>
           <CardHeader className="text-center">
             <Avatar className="mx-auto h-24 w-24 text-3xl mb-4">
-              <AvatarFallback className={sectorColor}>
-                {initials}
-              </AvatarFallback>
+              <AvatarFallback className={sectorColor}>{initials}</AvatarFallback>
             </Avatar>
             <CardTitle className="text-2xl">{contact.name}</CardTitle>
             <div className="flex justify-center mt-2">
@@ -321,14 +393,6 @@ async function ContactDetails({ id }: { id: string }) {
                         <table className="min-w-full border border-gray-300 rounded-lg">
                           <thead className="bg-gray-100 sticky top-0 z-10">
                             <tr>
-<<<<<<< HEAD
-                              <th className="px-4 py-3 text-left border-b font-medium">DTA</th>
-                              <th className="px-4 py-3 text-left border-b font-medium">Nombre del Curso</th>
-                              <th className="px-4 py-3 text-left border-b font-medium">Estado</th>
-                              <th className="px-4 py-3 text-left border-b font-medium">Fecha de Registro</th>
-                              <th className="px-4 py-3 text-left border-b font-medium">Editar</th>
-                              <th className="px-4 py-3 text-left border-b font-medium">Eliminar</th>
-=======
                               <th className="px-4 py-3 text-left border-b font-medium">
                                 DTA
                               </th>
@@ -347,47 +411,8 @@ async function ContactDetails({ id }: { id: string }) {
                               <th className="px-4 py-3 text-left border-b font-medium">
                                 Eliminar
                               </th>
->>>>>>> 210b55727ff71a6cf6d745f022cb72f2650634c2
                             </tr>
                           </thead>
-                          <tbody>
-                            <tr>
-                              <td className="px-4 py-2 border">001</td>
-                              <td className="px-4 py-2 border">
-                                Introducción a React
-                              </td>
-                              <td className="px-4 py-2 border">Activo</td>
-                              <td className="px-4 py-2 border">2025-08-29</td>
-                              <td className="px-4 py-2 border text-center">
-                                <button className="bg-yellow-500 text-white px-3 py-1 rounded-lg hover:bg-yellow-600">
-                                  Editar
-                                </button>
-                              </td>
-                              <td className="px-4 py-2 border text-center">
-                                <button className="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600">
-                                  Eliminar
-                                </button>
-                              </td>
-                            </tr>
-                            <tr>
-                              <td className="px-4 py-2 border">002</td>
-                              <td className="px-4 py-2 border">
-                                Bases de Datos
-                              </td>
-                              <td className="px-4 py-2 border">Finalizado</td>
-                              <td className="px-4 py-2 border">2025-07-20</td>
-                              <td className="px-4 py-2 border text-center">
-                                <button className="bg-yellow-500 text-white px-3 py-1 rounded-lg hover:bg-yellow-600">
-                                  Editar
-                                </button>
-                              </td>
-                              <td className="px-4 py-2 border text-center">
-                                <button className="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600">
-                                  Eliminar
-                                </button>
-                              </td>
-                            </tr>
-                          </tbody>
                         </table>
                       </div>
                     </div>

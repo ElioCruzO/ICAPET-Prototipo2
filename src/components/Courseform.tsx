@@ -22,11 +22,12 @@ import { Loader2 } from "lucide-react";
 interface CourseFormProps {
   course?: Curso;
   setOpen?: (open: boolean) => void;
+  contactoId? : string;
 }
 
 // esquema de validación usando los nombres reales de Curso
 const courseSchema = z.object({
-  dta: z.string().min(1, "El DTA es obligatorio."),
+  dta: z.string().min(1, "El DTA es obligatorio.").regex(/^[0-9]+$/, "El DTA solo puede contener letras y números."),
   nombre: z.string().min(2, "El nombre del curso debe tener al menos 2 caracteres."),
   estado: z.string().min(1, "Debe seleccionar un estado."),
   fecha: z.string().min(1, "La fecha de registro es obligatoria."),
@@ -34,7 +35,7 @@ const courseSchema = z.object({
 
 const estados = ["Activo", "Terminado", "Inconcluso"];
 
-export default function CourseForm({ course, setOpen }: CourseFormProps) {
+export default function CourseForm({ course, setOpen, contactoId }: CourseFormProps) {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -58,7 +59,7 @@ export default function CourseForm({ course, setOpen }: CourseFormProps) {
           description: `${values.nombre} ha sido actualizado exitosamente.`,
         });
       } else {
-        await addCourse(values);
+        await addCourse({...values, contactoId: contactoId ? Number(contactoId) : 0});
         toast({
           title: "Curso Añadido",
           description: `${values.nombre} ha sido añadido exitosamente.`,

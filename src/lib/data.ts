@@ -24,7 +24,7 @@ type InteractionFromDB = {
 };
 
 type CursoFromDB = {
-  dta: number;
+  dta: string;
   contacto_id: number;
   nombre: string;
   estado: string;
@@ -130,5 +130,24 @@ export async function getContactById(id: string): Promise<Contact | null> {
   } catch (error) {
     console.error('Database Error:', error);
     return null;
+  }
+}
+
+export async function getCoursesByContact(contactId: string): Promise<Curso[]> {
+  noStore();
+  try {
+    const [rows] = await db.query<CursoFromDB[]>(
+      'SELECT* FROM cursos where CONTACTO_ID = ? ORDER BY fecha DESC', [contactId]
+    );
+    return rows.map(c => ({
+      dta:c.dta.toString(),
+      contactoId: c.contacto_id.toString(),
+      nombre: c.nombre,
+      estado: c.estado,
+      fecha: c.fecha,
+    }));
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch courses.');
   }
 }
