@@ -1,9 +1,5 @@
-<<<<<<< HEAD
-import { getContactById } from "@/lib/data";
-import { getCoursesContact, deleteContact } from "@/lib/actions";
-=======
-import { getContactById } from '@/lib/data';
->>>>>>> 210b55727ff71a6cf6d745f022cb72f2650634c2
+import { getContacts, getContactById } from "@/lib/data";
+import { getCourses, deleteContact } from "@/lib/actions";
 import {
   ArrowLeft,
   Mail,
