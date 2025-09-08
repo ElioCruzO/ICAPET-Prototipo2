@@ -215,6 +215,7 @@ export async function addCourse(data: z.infer<typeof courseSchema>) {
     );
 
     revalidatePath('/cursos');
+    revalidatePath('/contacts/${validateData.contactoId}');
     return { success: true, insertId: result.insertId };
   } catch (error: any) {
     console.error('Error agregando curso:', error);
@@ -259,9 +260,14 @@ export async function updateCourse(dta: number, data: Partial<z.infer<typeof cou
 }
 
 export async function deleteCourse(dta: number) {
-  const [result] = await db.execute('DELETE FROM cursos WHERE dta = ?', [dta]);
-  revalidatePath('/cursos');
-  return result;
+  try {
+    const [result] = await db.execute('DELETE FROM cursos WHERE dta = ?', [dta]);
+    revalidatePath('/cursos');
+    return result;
+  } catch (error: any) {
+    console.error('Error eliminado curso: ', error);
+    throw new Error(error.sqlMessage || error.message || 'No se pudo eliminar el curso.');
+  }
 }
 
 export async function getCourses() {
