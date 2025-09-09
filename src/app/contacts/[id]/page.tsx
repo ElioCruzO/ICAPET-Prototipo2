@@ -1,10 +1,5 @@
-<<<<<<< HEAD
-import { getContacts, getContactById } from "@/lib/data";
-import { getCourses, deleteContact } from "@/lib/actions";
-=======
-import { getContactById } from '@/lib/data';
-import { deleteCourse } from "@/lib/actions";
->>>>>>> 2dc348061a20b4495e64709f11c83b6ac3553960
+import { getContacts, getContactById, getCoursesByContact } from "@/lib/data";
+import { getCourses, deleteContact, deleteCourse } from "@/lib/actions";
 import {
   ArrowLeft,
   Mail,
@@ -130,7 +125,7 @@ async function CoursesTable ({ contactId }: { contactId: string }) {
                         <DialogHeader>
                           <DialogTitle>Editar Curso</DialogTitle>
                         </DialogHeader>
-                        <CourseForm course={null} contactoId={contactId.id} />
+                        <CourseForm course={undefined} contactoId={contactId} />
                       </DialogContent>
                     </Dialog>
                     <form action={handleDelete.bind(null, courses.dta)}>
@@ -165,7 +160,7 @@ async function ContactDetails({ id }: { id: string }) {
 
   const sectorName = getSectorName(contact);
   const sectorIdForColor = getSectorIdForColor(contact);
-  const sectorColor = getSectorColor(getSectorIdForColor, contact.sector?.nombre);
+  const sectorColor = getSectorColor(getSectorIdForColor(contact), contact.sector?.toString());
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -380,7 +375,7 @@ async function ContactDetails({ id }: { id: string }) {
                           <DialogHeader>
                             <DialogTitle> Agregar Curso</DialogTitle>
                           </DialogHeader>
-                          <CourseForm course={null} />
+                          <CourseForm course={undefined} />
                         </DialogContent>
                       </Dialog>
                     </div>
