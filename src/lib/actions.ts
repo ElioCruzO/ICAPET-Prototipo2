@@ -24,7 +24,7 @@ const interactionSchema = z.object({
 
 // Esquema de validación de curso
 const courseSchema = z.object({
-  dta: z.number().int(),
+  dta: z.preprocess((val) => Number(val), z.number().int().positive()),
   nombre: z.string().min(2),
   estado: z.string().min(2),
   fecha: z.string(),
@@ -208,7 +208,7 @@ export async function addCourse(
     `INSERT INTO cursos (dta, contacto_id, nombre, estado, fecha)
      VALUES (?, ?, ?, ?, ?)`,
     [
-      validatedData.dta || null,
+      validatedData.dta,
       contactId,
       validatedData.nombre,
       validatedData.estado,
@@ -231,22 +231,21 @@ const updateCourseSchema = z.object({
 });
 
 export async function updateCourse(
-  courseId: number,
-  contactId: string,
+  dta: string, // clave primaria
+  contactId: string, // para asegurar que pertenece al contacto
   data: z.infer<typeof updateCourseSchema>
 ) {
   const validatedData = updateCourseSchema.parse(data);
 
   const [result]: any = await db.execute(
     `UPDATE cursos
-     SET dta = ?, nombre = ?, estado = ?, fecha = ?
-     WHERE id = ? AND contacto_id = ?`,
+     SET nombre = ?, estado = ?, fecha = ?
+     WHERE dta = ? AND contacto_id = ?`,
     [
-      validatedData.dta || null,
       validatedData.nombre,
       validatedData.estado,
       validatedData.fecha,
-      courseId,
+      dta,
       contactId,
     ]
   );
@@ -255,8 +254,7 @@ export async function updateCourse(
   revalidatePath(`/contacts/${contactId}`);
 
   return result;
-}
-export async function deleteCourse(dta: number) {
+}export async function deleteCourse(dta: number) {
   try {
     const [result] = await db.execute('DELETE FROM cursos WHERE dta = ?', [dta]);
     revalidatePath('/cursos');

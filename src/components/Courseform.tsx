@@ -26,9 +26,8 @@ export default function CourseForm({ contactoId, onSaved }: CourseFormProps) {
     if (nombre.trim() && estado.trim() && fecha) {
       startTransition(async () => {
         try {
-          await addCourse({
-            dta,
-            contactoId,
+          await addCourse(contactoId,{
+            dta:Number(dta),
             nombre,
             estado,
             fecha,
@@ -60,7 +59,13 @@ export default function CourseForm({ contactoId, onSaved }: CourseFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <Input
-        placeholder="Nombre del curso"
+        placeholder="Dta del curso"
+        value={dta}
+        onChange={(e) => setDta(e.target.value)}
+        disabled={isPending}
+      />
+      <Input
+        placeholder="Nombre del Curso"
         value={nombre}
         onChange={(e) => setNombre(e.target.value)}
         disabled={isPending}
