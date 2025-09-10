@@ -13,7 +13,7 @@ interface CourseFormProps {
 }
 
 export default function CourseForm({ contactoId, onSaved }: CourseFormProps) {
-    const [dta, setDta] = useState("");
+  const [dta, setDta] = useState("");
   const [nombre, setNombre] = useState("");
   const [estado, setEstado] = useState("");
   const [fecha, setFecha] = useState("");
@@ -22,18 +22,29 @@ export default function CourseForm({ contactoId, onSaved }: CourseFormProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
     if (nombre.trim() && estado.trim() && fecha) {
       startTransition(async () => {
         try {
-          await addCourse( contactoId, { dta, nombre, estado, fecha });
+          await addCourse({
+            dta,
+            contactoId,
+            nombre,
+            estado,
+            fecha,
+          });
+
           toast({
             title: "Curso Registrado",
             description: "Tu nuevo curso ha sido guardado.",
           });
+
+          // limpiar inputs
           setDta("");
           setNombre("");
           setEstado("");
           setFecha("");
+
           if (onSaved) onSaved(); // refrescar lista si se pasa la función
         } catch (error) {
           toast({
@@ -67,8 +78,11 @@ export default function CourseForm({ contactoId, onSaved }: CourseFormProps) {
         disabled={isPending}
       />
       <div className="flex justify-end">
-        <Button type="submit" disabled={!nombre.trim() || !estado.trim() || !fecha || isPending}>
-          {isPending && <Loader2 className="animate-spin" />}
+        <Button
+          type="submit"
+          disabled={!nombre.trim() || !estado.trim() || !fecha || isPending}
+        >
+          {isPending && <Loader2 className="animate-spin mr-2" />}
           Guardar Curso
         </Button>
       </div>

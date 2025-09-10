@@ -25,7 +25,6 @@ const interactionSchema = z.object({
 // Esquema de validación de curso
 const courseSchema = z.object({
   dta: z.number().int(),
-  contactoId: z.number().int(),
   nombre: z.string().min(2),
   estado: z.string().min(2),
   fecha: z.string(),
@@ -198,67 +197,65 @@ export async function getSectores() {
   }
 }
 
-export async function addCourse(data: z.infer<typeof courseSchema>) {
-  try {
-    const validatedData = courseSchema.parse(data);
 
-    const [result]: any = await db.execute(
-      `INSERT INTO cursos (dta, contacto_id, nombre, estado, fecha)
-       VALUES (?, ?, ?, ?, ?)`,
-      [
-        validatedData.dta,
-        validatedData.contactoId,
-        validatedData.nombre,
-        validatedData.estado,
-        validatedData.fecha,
-      ]
-    );
+export async function addCourse(
+  contactId: string,
+  data: z.infer<typeof courseSchema>
+) {
+  const validatedData = courseSchema.parse(data);
 
-    revalidatePath('/cursos');
-    revalidatePath('/contacts/${validateData.contactoId}');
-    return { success: true, insertId: result.insertId };
-  } catch (error: any) {
-    console.error('Error agregando curso:', error);
-    return {
-      success: false,
-      error:
-        error.sqlMessage ||
-        error.message ||
-        'No se pudo agregar el curso.',
-    };
-  }
+  const [result]: any = await db.execute(
+    `INSERT INTO cursos (dta, contacto_id, nombre, estado, fecha)
+     VALUES (?, ?, ?, ?, ?)`,
+    [
+      validatedData.dta || null,
+      contactId,
+      validatedData.nombre,
+      validatedData.estado,
+      validatedData.fecha,
+    ]
+  );
+
+  revalidatePath("/cursos");
+  revalidatePath(`/contacts/${contactId}`);
+
+  return result;
 }
 
-export async function updateCourse(dta: number, data: Partial<z.infer<typeof courseSchema>>) {
-  try {
-    const validatedData = courseSchema.partial().parse(data);
 
-    const updateFields: string[] = [];
-    const updateValues: any[] = [];
+const updateCourseSchema = z.object({
+  dta: z.string().optional(),
+  nombre: z.string().min(2),
+  estado: z.string().min(2),
+  fecha: z.string(),
+});
 
-    for (const key in validatedData) {
-      updateFields.push(`${key === 'contactoId' ? 'contacto_id' : key} = ?`);
-      updateValues.push(validatedData[key as keyof typeof validatedData]);
-    }
+export async function updateCourse(
+  courseId: number,
+  contactId: string,
+  data: z.infer<typeof updateCourseSchema>
+) {
+  const validatedData = updateCourseSchema.parse(data);
 
-    if (updateFields.length === 0) return;
+  const [result]: any = await db.execute(
+    `UPDATE cursos
+     SET dta = ?, nombre = ?, estado = ?, fecha = ?
+     WHERE id = ? AND contacto_id = ?`,
+    [
+      validatedData.dta || null,
+      validatedData.nombre,
+      validatedData.estado,
+      validatedData.fecha,
+      courseId,
+      contactId,
+    ]
+  );
 
-    const setClause = updateFields.join(', ');
-    const [result] = await db.execute(
-      `UPDATE cursos SET ${setClause} WHERE dta = ?`,
-      [...updateValues, dta]
-    );
+  revalidatePath("/cursos");
+  revalidatePath(`/contacts/${contactId}`);
 
-    revalidatePath('/cursos');
-    return result;
-  } catch (error: any) {
-    console.error('Error actualizando curso:', error);
-    throw new Error(
-      error.sqlMessage || error.message || 'No se pudo actualizar el curso.'
-    );
-  }
+  return result;
 }
-
 export async function deleteCourse(dta: number) {
   try {
     const [result] = await db.execute('DELETE FROM cursos WHERE dta = ?', [dta]);
@@ -270,24 +267,3 @@ export async function deleteCourse(dta: number) {
   }
 }
 
-export async function getCourses() {
-  try {
-    const [rows]: any = await db.query(
-      `SELECT c.dta, c.nombre, c.estado, c.fecha, ct.name AS contacto
-       FROM cursos c
-       JOIN contactos ct ON c.contacto_id = ct.id
-       ORDER BY c.fecha DESC`
-    );
-
-    return rows.map((c: any) => ({
-      dta: c.dta,
-      nombre: c.nombre,
-      estado: c.estado,
-      fecha: c.fecha,
-      contacto: c.contacto,
-    }));
-  } catch (error: any) {
-    console.error('Error obteniendo cursos:', error);
-    throw new Error('No se pudieron cargar los cursos.');
-  }
-}
