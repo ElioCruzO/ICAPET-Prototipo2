@@ -8,11 +8,11 @@ import { addCourse } from "@/lib/actions";
 import { Loader2 } from "lucide-react";
 
 interface CourseFormProps {
-  contactoId: string;
+  contactId: string;
   onSaved?: () => void; // opción para refrescar la lista
 }
 
-export default function CourseForm({ contactoId, onSaved }: CourseFormProps) {
+export default function CourseForm({ contactId, onSaved }: CourseFormProps) {
   const [dta, setDta] = useState("");
   const [nombre, setNombre] = useState("");
   const [estado, setEstado] = useState("");
@@ -26,7 +26,7 @@ export default function CourseForm({ contactoId, onSaved }: CourseFormProps) {
     if (nombre.trim() && estado.trim() && fecha) {
       startTransition(async () => {
         try {
-          await addCourse(contactoId,{
+          await addCourse(contactId,{
             dta:Number(dta),
             nombre,
             estado,
@@ -85,7 +85,7 @@ export default function CourseForm({ contactoId, onSaved }: CourseFormProps) {
       <div className="flex justify-end">
         <Button
           type="submit"
-          disabled={!nombre.trim() || !estado.trim() || !fecha || isPending}
+          disabled={!dta.trim() || !nombre.trim() || !estado.trim() || !fecha || isPending}
         >
           {isPending && <Loader2 className="animate-spin mr-2" />}
           Guardar Curso

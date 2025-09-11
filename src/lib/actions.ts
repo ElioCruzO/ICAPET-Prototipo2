@@ -204,6 +204,11 @@ export async function addCourse(
 ) {
   const validatedData = courseSchema.parse(data);
 
+
+    console.log("Datos validados en addCourse:", validatedData);
+  console.log("ID del contacto:", contactId);
+
+
   const [result]: any = await db.execute(
     `INSERT INTO cursos (dta, contacto_id, nombre, estado, fecha)
      VALUES (?, ?, ?, ?, ?)`,
@@ -219,23 +224,18 @@ export async function addCourse(
   revalidatePath("/cursos");
   revalidatePath(`/contacts/${contactId}`);
 
-  return result;
+  return { insertId: result.insertId };
 }
 
 
-const updateCourseSchema = z.object({
-  dta: z.string().optional(),
-  nombre: z.string().min(2),
-  estado: z.string().min(2),
-  fecha: z.string(),
-});
+
 
 export async function updateCourse(
   dta: string, // clave primaria
   contactId: string, // para asegurar que pertenece al contacto
-  data: z.infer<typeof updateCourseSchema>
+  data: z.infer<typeof courseSchema>
 ) {
-  const validatedData = updateCourseSchema.parse(data);
+  const validatedData = courseSchema.parse(data);
 
   const [result]: any = await db.execute(
     `UPDATE cursos

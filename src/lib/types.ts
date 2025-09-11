@@ -11,7 +11,6 @@ export interface Interaction {
 
 export interface Curso {
   dta: string;          // id del curso
-  
   nombre: string;
   estado: string;
   fecha: string;        // ISO date string
