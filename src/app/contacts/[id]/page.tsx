@@ -1,5 +1,5 @@
-import { getContactById } from '@/lib/data';
-import { deleteCourse } from "@/lib/actions";
+import { getContacts, getContactById, getCoursesByContact } from "@/lib/data";
+import { getCourses, deleteContact, deleteCourse } from "@/lib/actions";
 import {
   ArrowLeft,
   Mail,
@@ -31,6 +31,7 @@ import InteractionForm from '@/components/InteractionForm';
 import { Suspense } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
+import CourseList from "@/components/CourseList";
 
 // Mapeo de sectores a colores
 const sectorColors: Record<string, string> = {
@@ -125,7 +126,7 @@ async function CoursesTable ({ contactId }: { contactId: string }) {
                         <DialogHeader>
                           <DialogTitle>Editar Curso</DialogTitle>
                         </DialogHeader>
-                        <CourseForm course={null} contactoId={contactId.id} />
+                        <CourseForm course={undefined} contactoId={contactId} />
                       </DialogContent>
                     </Dialog>
                     <form action={handleDelete.bind(null, courses.dta)}>
@@ -160,7 +161,7 @@ async function ContactDetails({ id }: { id: string }) {
 
   const sectorName = getSectorName(contact);
   const sectorIdForColor = getSectorIdForColor(contact);
-  const sectorColor = getSectorColor(getSectorIdForColor, contact.sector?.nombre);
+  const sectorColor = getSectorColor(getSectorIdForColor(contact), contact.sector?.toString());
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -283,74 +284,6 @@ async function ContactDetails({ id }: { id: string }) {
                     />
                   </div>
                 </div>
-
-                {/* Contenido de Cursos */}
-                <div
-                  className="absolute inset-0 p-6 bg-white transition-transform duration-500 ease-in-out transform translate-x-full opacity-0 overflow-y-auto"
-                  style={{
-                    transform: 'translateX(100%)',
-                    opacity: 0,
-                  }}
-                  id="content-cursos"
-                >
-                  <div className="space-y-4">
-                    <form className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium mb-1">
-                          DTA
-                        </label>
-                        <input
-                          type="text"
-                          name="dta"
-                          className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                          placeholder="Ingresa DTA"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium mb-1">
-                          Nombre del Curso
-                        </label>
-                        <input
-                          type="text"
-                          name="nombre"
-                          className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                          placeholder="Nombre del curso"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium mb-1">
-                          Estado
-                        </label>
-                        <select
-                          name="estado"
-                          className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                        >
-                          <option value="activo">Activo</option>
-                          <option value="terminado">Terminado</option>
-                          <option value="inconcluso">Inconcluso</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium mb-1">
-                          Fecha de Registro
-                        </label>
-                        <input
-                          type="date"
-                          name="fecha"
-                          className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                        />
-                      </div>
-                      <Button
-                        type="submit"
-                        className="w-full hover:bg-blue-600 transition-colors duration-200"
-                      >
-                        Guardar Curso
-                      </Button>
-                    </form>
-                  </div>
-                </div>
-
-                {/* Contenido de Lista de Cursos */}
                 <div
                   className="absolute inset-0 bg-white transition-transform duration-500 ease-in-out transform translate-x-full opacity-0 flex flex-col"
                   style={{
@@ -359,58 +292,11 @@ async function ContactDetails({ id }: { id: string }) {
                   }}
                   id="content-listaC"
                 >
-                  {/* Header fijo */}
-                  <div className="p-6 pb-4 border-b bg-white flex-shrink-0">
-                    <div className="flex justify-between ittems-center">
-                      <h3 className="text-lg font-semibold">
-                        Lista de Cursos Registrados
-                      </h3>
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <button className="bg-yellow-500 text-white px-3 py-1 rounded-lg hover:bg-yellow-600">
-                            Agregar curso
-                          </button>
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-[425px]">
-                          <DialogHeader>
-                            <DialogTitle> Agregar Curso</DialogTitle>
-                          </DialogHeader>
-                          <CourseForm course={null} />
-                        </DialogContent>
-                      </Dialog>
-                    </div>
-                  </div>
-
-                  {/* Contenido scrolleable */}
-                  <div className="flex-1 overflow-hidden">
-                    <div className="h-full overflow-y-auto px-6 pb-6">
-                      <div className="overflow-x-auto">
-                        <table className="min-w-full border border-gray-300 rounded-lg">
-                          <thead className="bg-gray-100 sticky top-0 z-10">
-                            <tr>
-                              <th className="px-4 py-3 text-left border-b font-medium">
-                                DTA
-                              </th>
-                              <th className="px-4 py-3 text-left border-b font-medium">
-                                Nombre del Curso
-                              </th>
-                              <th className="px-4 py-3 text-left border-b font-medium">
-                                Estado
-                              </th>
-                              <th className="px-4 py-3 text-left border-b font-medium">
-                                Fecha de Registro
-                              </th>
-                              <th className="px-4 py-3 text-left border-b font-medium">
-                                Ediar
-                              </th>
-                              <th className="px-4 py-3 text-left border-b font-medium">
-                                Eliminar
-                              </th>
-                            </tr>
-                          </thead>
-                        </table>
-                      </div>
-                    </div>
+                   <div className="space-y-4">
+                    <CourseForm contactId={contact.id} />
+                    <CourseList
+                      cursos={contact.cursos || []}
+                    />
                   </div>
                 </div>
               </div>

@@ -24,8 +24,7 @@ const interactionSchema = z.object({
 
 // Esquema de validación de curso
 const courseSchema = z.object({
-  dta: z.number().int(),
-  contactoId: z.number().int(),
+  dta: z.preprocess((val) => Number(val), z.number().int().positive()),
   nombre: z.string().min(2),
   estado: z.string().min(2),
   fecha: z.string(),
@@ -198,68 +197,64 @@ export async function getSectores() {
   }
 }
 
-export async function addCourse(data: z.infer<typeof courseSchema>) {
-  try {
-    const validatedData = courseSchema.parse(data);
 
-    const [result]: any = await db.execute(
-      `INSERT INTO cursos (dta, contacto_id, nombre, estado, fecha)
-       VALUES (?, ?, ?, ?, ?)`,
-      [
-        validatedData.dta,
-        validatedData.contactoId,
-        validatedData.nombre,
-        validatedData.estado,
-        validatedData.fecha,
-      ]
-    );
+export async function addCourse(
+  contactId: string,
+  data: z.infer<typeof courseSchema>
+) {
+  const validatedData = courseSchema.parse(data);
 
-    revalidatePath('/cursos');
-    revalidatePath('/contacts/${validateData.contactoId}');
-    return { success: true, insertId: result.insertId };
-  } catch (error: any) {
-    console.error('Error agregando curso:', error);
-    return {
-      success: false,
-      error:
-        error.sqlMessage ||
-        error.message ||
-        'No se pudo agregar el curso.',
-    };
-  }
+
+    console.log("Datos validados en addCourse:", validatedData);
+  console.log("ID del contacto:", contactId);
+
+
+  const [result]: any = await db.execute(
+    `INSERT INTO cursos (dta, contacto_id, nombre, estado, fecha)
+     VALUES (?, ?, ?, ?, ?)`,
+    [
+      validatedData.dta,
+      contactId,
+      validatedData.nombre,
+      validatedData.estado,
+      validatedData.fecha,
+    ]
+  );
+
+  revalidatePath("/cursos");
+  revalidatePath(`/contacts/${contactId}`);
+
+  return { insertId: result.insertId };
 }
 
-export async function updateCourse(dta: number, data: Partial<z.infer<typeof courseSchema>>) {
-  try {
-    const validatedData = courseSchema.partial().parse(data);
 
-    const updateFields: string[] = [];
-    const updateValues: any[] = [];
 
-    for (const key in validatedData) {
-      updateFields.push(`${key === 'contactoId' ? 'contacto_id' : key} = ?`);
-      updateValues.push(validatedData[key as keyof typeof validatedData]);
-    }
 
-    if (updateFields.length === 0) return;
+export async function updateCourse(
+  dta: string, // clave primaria
+  contactId: string, // para asegurar que pertenece al contacto
+  data: z.infer<typeof courseSchema>
+) {
+  const validatedData = courseSchema.parse(data);
 
-    const setClause = updateFields.join(', ');
-    const [result] = await db.execute(
-      `UPDATE cursos SET ${setClause} WHERE dta = ?`,
-      [...updateValues, dta]
-    );
+  const [result]: any = await db.execute(
+    `UPDATE cursos
+     SET nombre = ?, estado = ?, fecha = ?
+     WHERE dta = ? AND contacto_id = ?`,
+    [
+      validatedData.nombre,
+      validatedData.estado,
+      validatedData.fecha,
+      dta,
+      contactId,
+    ]
+  );
 
-    revalidatePath('/cursos');
-    return result;
-  } catch (error: any) {
-    console.error('Error actualizando curso:', error);
-    throw new Error(
-      error.sqlMessage || error.message || 'No se pudo actualizar el curso.'
-    );
-  }
-}
+  revalidatePath("/cursos");
+  revalidatePath(`/contacts/${contactId}`);
 
-export async function deleteCourse(dta: number) {
+  return result;
+}export async function deleteCourse(dta: number) {
   try {
     const [result] = await db.execute('DELETE FROM cursos WHERE dta = ?', [dta]);
     revalidatePath('/cursos');
@@ -270,24 +265,3 @@ export async function deleteCourse(dta: number) {
   }
 }
 
-export async function getCourses() {
-  try {
-    const [rows]: any = await db.query(
-      `SELECT c.dta, c.nombre, c.estado, c.fecha, ct.name AS contacto
-       FROM cursos c
-       JOIN contactos ct ON c.contacto_id = ct.id
-       ORDER BY c.fecha DESC`
-    );
-
-    return rows.map((c: any) => ({
-      dta: c.dta,
-      nombre: c.nombre,
-      estado: c.estado,
-      fecha: c.fecha,
-      contacto: c.contacto,
-    }));
-  } catch (error: any) {
-    console.error('Error obteniendo cursos:', error);
-    throw new Error('No se pudieron cargar los cursos.');
-  }
-}
