@@ -51,7 +51,7 @@ export async function getContacts(query: string): Promise<Contact[]> {
       [searchTerm, searchTerm, searchTerm, searchTerm, searchTerm, searchTerm]
     );
 
-    return rows.map(row => ({
+    return rows.map((row) => ({
       id: row.id.toString(),
       name: row.name,
       phone: row.phone,
@@ -96,7 +96,10 @@ export async function getContactById(id: string): Promise<Contact | null> {
     );
 
     const [cursoRows] = await db.query<CursoFromDB[]>(
-      'SELECT * FROM cursos WHERE contacto_id = ? ORDER BY fecha DESC',
+       `SELECT dta, contacto_id, nombre, estado, fecha 
+       FROM cursos 
+       WHERE contacto_id = ? 
+       ORDER BY fecha DESC`,
       [id]
     );
 
@@ -114,7 +117,7 @@ export async function getContactById(id: string): Promise<Contact | null> {
       cargo: contact.cargo,
       folio: contact.folio ?? undefined,
       fechaVinculacion: contact.fecha_vinculacion ?? undefined,
-      interactions: interactionRows.map(i => ({
+      interactions: interactionRows.map((i) => ({
         id: i.id.toString(),
         date: i.date,
         notes: i.notes,
@@ -123,7 +126,7 @@ export async function getContactById(id: string): Promise<Contact | null> {
         dta: c.dta.toString(),
         contactoId: c.contacto_id.toString(),
         nombre: c.nombre,
-        estado: c.estado,
+        estado: c.estado ?? "(Sin valor)",
         fecha: c.fecha,
       })),
     };
@@ -137,17 +140,22 @@ export async function getCoursesByContact(contactId: string): Promise<Curso[]> {
   noStore();
   try {
     const [rows] = await db.query<CursoFromDB[]>(
-      'SELECT* FROM cursos where CONTACTO_ID = ? ORDER BY fecha DESC', [contactId]
+      `SELECT dta, contacto_id, nombre, estado, fecha
+       FROM cursos 
+       WHERE contacto_id = ? 
+       ORDER BY fecha DESC`,
+      [contactId]
     );
-    return rows.map(c => ({
-      dta:c.dta.toString(),
+
+    return rows.map((c) => ({
+      dta: c.dta.toString(),
       contactoId: c.contacto_id.toString(),
       nombre: c.nombre,
-      estado: c.estado,
+      estado: c.estado ?? "⛔ (sin valor)", // 👈 garantizamos estado
       fecha: c.fecha,
     }));
   } catch (error) {
-    console.error('Database Error:', error);
-    throw new Error('Failed to fetch courses.');
+    console.error("Database Error (getCoursesByContact):", error);
+    throw new Error("Failed to fetch courses.");
   }
 }

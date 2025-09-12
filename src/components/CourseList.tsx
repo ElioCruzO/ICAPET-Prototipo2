@@ -38,7 +38,7 @@ export default function CourseList({ cursos, onDelete }: CourseListProps) {
             </div>
             <div className="flex-1">
               <p className="text-sm font-medium text-foreground">{curso.nombre}</p>
-              <p className="text-sm text-muted-foreground mt-1">Estado: {curso.estado}</p>
+              <p className="text-sm text-muted-foreground mt-1">Estado: {curso.estado ?? "⛔ (sin valor)"}</p>
               <p className="text-sm text-muted-foreground mt-1">
                 {format(
                   typeof curso.fecha === "string"
