@@ -3,17 +3,30 @@
 import { useState } from "react";
 import type { Curso } from "@/lib/types";
 import { format, parseISO } from "date-fns";
+import { Button } from '@/components/ui/button';
+import {
+  ArrowLeft,
+  Mail,
+  Phone,
+  MapPin,
+  Briefcase,
+  Edit,
+  Trash2,
+  Building,
+} from 'lucide-react';
 import { es } from "date-fns/locale";
 import { Calendar } from "lucide-react";
 import { ScrollArea } from "./ui/scroll-area";
+import DeleteCourseDialog from '@/components/DeleteCourseDialog';
 
 
 interface CourseListProps {
   cursos: Curso[];
+  contactId: string;
   onDelete: (id: number) => void;
 }
 
-export default function CourseList({ cursos, onDelete }: CourseListProps) {
+export default function CourseList({ cursos, onDelete , contactId }: CourseListProps) {
   if (cursos.length === 0) {
     return (
       <div className="text-center py-10 border-2 border-dashed rounded-lg mt-4">
@@ -49,12 +62,15 @@ export default function CourseList({ cursos, onDelete }: CourseListProps) {
                 )}
               </p>
             </div>
-            <button
-              onClick={() => onDelete(curso.dta)}
-              className="ml-4 bg-red-600 text-white px-3 py-1 rounded-lg hover:bg-red-700"
-            >
-              Eliminar
-            </button>
+            
+            <DeleteCourseDialog 
+            dta={Number(curso.dta)}
+            contactId={String(contactId)}>
+                <Button variant="destructive" className="w-full">
+                  <Trash2 className="mr-2 h-4 w-4" /> Eliminar
+                </Button>
+            </DeleteCourseDialog>
+            
           </div>
         ))}
       </div>

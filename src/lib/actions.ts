@@ -254,14 +254,26 @@ export async function updateCourse(
   revalidatePath(`/contacts/${contactId}`);
 
   return result;
-}export async function deleteCourse(dta: number) {
+}
+
+export async function deleteCourse(dta: number,contactId: string ) {
   try {
-    const [result] = await db.execute('DELETE FROM cursos WHERE dta = ?', [dta]);
-    revalidatePath('/cursos');
-    return result;
+    const [result]: any = await db.execute(
+      "DELETE FROM cursos WHERE dta = ?",
+      [dta]
+    );
+
+    revalidatePath("/cursos");
+    revalidatePath(`/contacts/${contactId}`);
+
+    // Retornar solo lo necesario en un objeto plano
+    return { affectedRows: result.affectedRows };
   } catch (error: any) {
-    console.error('Error eliminado curso: ', error);
-    throw new Error(error.sqlMessage || error.message || 'No se pudo eliminar el curso.');
+    console.error("Error eliminando curso: ", error);
+    throw new Error(
+      error.sqlMessage || error.message || "No se pudo eliminar el curso."
+    );
   }
 }
+
 

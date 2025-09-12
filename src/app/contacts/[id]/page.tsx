@@ -1,5 +1,5 @@
 import { getContacts, getContactById, getCoursesByContact } from "@/lib/data";
-import { getCourses, deleteContact, deleteCourse } from "@/lib/actions";
+import { deleteContact, deleteCourse } from "@/lib/actions";
 import {
   ArrowLeft,
   Mail,
@@ -69,84 +69,7 @@ const getSectorIdForColor = (contact: any): string => {
   );
 };
 
-// Componente para mostrar la tabla de cursos
-async function CoursesTable ({ contactId }: { contactId: string }) {
-  const courses = await getCoursesByContact(contactId);
 
-  const handleDelete = async (dta: string) => {
-    "use server";
-    await deleteCourse(Number(dta));
-  };
-
-  return (
-    <div className="overflow-x-auto">
-      <table className="min-w-full border border-gray-300 rounded-lg">
-        <thead className="bg-gray-100 sticky top-0 z-10">
-          <tr>
-            <th className="px-4 py-3 text-left border-b font-medium">DTA</th>
-            <th className="px-4 py-3 text-left border-b font-medium">Nombre del Curso</th>
-            <th className="px-4 py-3 text-left border-b font-medium">Estado</th>
-            <th className="px-4 py-3 text-left border-b font-medium">Fecha de registro</th>
-            <th className="px-4 py-3 text-left border-b font-medium">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {courses.length  === 0 ?(
-            <tr>
-              <td colSpan={5} className="px-4 py-8 text-center text-gray-500">
-                No hay cursos registrados para este contacto
-              </td>
-            </tr>
-          ) : (
-            courses.map((courses) => (
-              <tr key={courses.dta}>
-                <td className="px-4 py-2 border">{courses.dta}</td>
-                <td className="px-4 py-2 border">{courses.nombre}</td>
-                <td className="px-4 py-2 border">
-                  <Badge
-                    className={
-                      courses.estado === 'Activo' ? 'bg-green-500' :
-                      courses.estado === 'Pendiente' ? 'bg-orange-500' :
-                      courses.estado === 'Terminado' ? 'bg-blue-500':
-                      'bg-yellow-500'
-                    }>
-                      {courses.estado}
-                    </Badge>
-                </td>  
-                <td className="px-4 py-2 border">{courses.fecha}</td>
-                <td className="px-4 py-2 border">
-                    <div className="flex gap-2">
-                      <Dialog>
-                      <DialogTrigger asChild>
-                        <button className="bg-yellow-500 text-white px-3 py-1 rounded-lg hover:bg-yellow-600 text-xs">
-                          Editar
-                        </button>
-                      </DialogTrigger>
-                      <DialogContent className="sm:max-w-[425px]">
-                        <DialogHeader>
-                          <DialogTitle>Editar Curso</DialogTitle>
-                        </DialogHeader>
-                        <CourseForm course={undefined} contactoId={contactId} />
-                      </DialogContent>
-                    </Dialog>
-                    <form action={handleDelete.bind(null, courses.dta)}>
-                      <button 
-                        type="submit"
-                        className="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 text-xs"
-                      >
-                        Eliminar
-                      </button>
-                    </form>
-                    </div>
-                </td>             
-              </tr>
-            ))
-          )}
-        </tbody>
-      </table>
-    </div>
-  )
-}
 async function ContactDetails({ id }: { id: string }) {
   const contact = await getContactById(id);
 
@@ -295,7 +218,8 @@ async function ContactDetails({ id }: { id: string }) {
                    <div className="space-y-4">
                     <CourseForm contactId={contact.id} />
                     <CourseList
-                      cursos={contact.cursos || []}
+                      cursos={contact.cursos || []} 
+                      contactId={contact.id}
                     />
                   </div>
                 </div>
