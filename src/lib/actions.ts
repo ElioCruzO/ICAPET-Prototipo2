@@ -231,7 +231,7 @@ export async function addCourse(
 
 
 export async function updateCourse(
-  dta: string, // clave primaria
+
   contactId: string, // para asegurar que pertenece al contacto
   data: z.infer<typeof courseSchema>
 ) {
@@ -245,7 +245,7 @@ export async function updateCourse(
       validatedData.nombre,
       validatedData.estado,
       validatedData.fecha,
-      dta,
+      validatedData.dta,
       contactId,
     ]
   );

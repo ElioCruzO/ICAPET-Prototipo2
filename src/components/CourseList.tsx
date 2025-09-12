@@ -18,15 +18,16 @@ import { es } from "date-fns/locale";
 import { Calendar } from "lucide-react";
 import { ScrollArea } from "./ui/scroll-area";
 import DeleteCourseDialog from '@/components/DeleteCourseDialog';
+import CourseForm from '@/components/Courseform';
 
 
 interface CourseListProps {
   cursos: Curso[];
   contactId: string;
-  onDelete: (id: number) => void;
+  
 }
 
-export default function CourseList({ cursos, onDelete , contactId }: CourseListProps) {
+export default function CourseList({ cursos , contactId }: CourseListProps) {
   if (cursos.length === 0) {
     return (
       <div className="text-center py-10 border-2 border-dashed rounded-lg mt-4">
@@ -62,7 +63,9 @@ export default function CourseList({ cursos, onDelete , contactId }: CourseListP
                 )}
               </p>
             </div>
-            
+
+          
+
             <DeleteCourseDialog 
             dta={Number(curso.dta)}
             contactId={String(contactId)}>

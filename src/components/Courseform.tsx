@@ -1,24 +1,36 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { addCourse } from "@/lib/actions";
+import { addCourse, updateCourse } from "@/lib/actions"; // asegúrate de tener updateCourse
 import { Loader2 } from "lucide-react";
+import type { Curso } from "@/lib/types";
 
 interface CourseFormProps {
   contactId: string;
-  onSaved?: () => void; // opción para refrescar la lista
+  curso?: Curso; // si existe, estamos editando
+  onSaved?: () => void; // refrescar lista después de guardar
 }
 
-export default function CourseForm({ contactId, onSaved }: CourseFormProps) {
-  const [dta, setDta] = useState("");
-  const [nombre, setNombre] = useState("");
-  const [estado, setEstado] = useState("");
-  const [fecha, setFecha] = useState("");
+export default function CourseForm({ contactId, curso, onSaved }: CourseFormProps) {
+  const [dta, setDta] = useState(curso?.dta?.toString() || "");
+  const [nombre, setNombre] = useState(curso?.nombre || "");
+  const [estado, setEstado] = useState(curso?.estado || "");
+  const [fecha, setFecha] = useState(curso?.fecha || "");
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
+
+  // si cambia el curso a editar, actualizar los campos
+  useEffect(() => {
+    if (curso) {
+      setDta(curso.dta?.toString() || "");
+      setNombre(curso.nombre || "");
+      setEstado(curso.estado || "");
+      setFecha(curso.fecha || "");
+    }
+  }, [curso]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,29 +38,45 @@ export default function CourseForm({ contactId, onSaved }: CourseFormProps) {
     if (nombre.trim() && estado.trim() && fecha) {
       startTransition(async () => {
         try {
-          await addCourse(contactId,{
-            dta:Number(dta),
-            nombre,
-            estado,
-            fecha,
-          });
+          if (curso) {
+            // actualizar curso existente
+            await updateCourse(contactId, {
+              dta: Number(dta),
+              nombre,
+              estado,
+              fecha,
+            });
+            toast({
+              title: "Curso Actualizado",
+              description: "Los datos del curso han sido modificados.",
+            });
+          } else {
+            // crear nuevo curso
+            await addCourse(contactId, {
+              dta: Number(dta),
+              nombre,
+              estado,
+              fecha,
+            });
+            toast({
+              title: "Curso Registrado",
+              description: "Tu nuevo curso ha sido guardado.",
+            });
+          }
 
-          toast({
-            title: "Curso Registrado",
-            description: "Tu nuevo curso ha sido guardado.",
-          });
+          // limpiar inputs solo si era nuevo
+          if (!curso) {
+            setDta("");
+            setNombre("");
+            setEstado("");
+            setFecha("");
+          }
 
-          // limpiar inputs
-          setDta("");
-          setNombre("");
-          setEstado("");
-          setFecha("");
-
-          if (onSaved) onSaved(); // refrescar lista si se pasa la función
+          if (onSaved) onSaved(); // actualizar lista en el padre
         } catch (error) {
           toast({
             title: "Error",
-            description: "No se pudo registrar el curso.",
+            description: "No se pudo guardar el curso.",
             variant: "destructive",
           });
         }
@@ -62,7 +90,7 @@ export default function CourseForm({ contactId, onSaved }: CourseFormProps) {
         placeholder="Dta del curso"
         value={dta}
         onChange={(e) => setDta(e.target.value)}
-        disabled={isPending}
+        disabled={isPending || Boolean(curso)} // bloquear dta si es edición
       />
       <Input
         placeholder="Nombre del Curso"
@@ -88,7 +116,7 @@ export default function CourseForm({ contactId, onSaved }: CourseFormProps) {
           disabled={!dta.trim() || !nombre.trim() || !estado.trim() || !fecha || isPending}
         >
           {isPending && <Loader2 className="animate-spin mr-2" />}
-          Guardar Curso
+          {curso ? "Actualizar Curso" : "Guardar Curso"}
         </Button>
       </div>
     </form>
