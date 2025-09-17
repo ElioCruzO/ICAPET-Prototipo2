@@ -11,6 +11,7 @@ import type { Curso } from "@/lib/types";
 interface CourseFormProps {
   contactId: string;
   curso?: Curso; // si existe, estamos editando
+
   onSaved?: () => void; // refrescar lista después de guardar
 }
 

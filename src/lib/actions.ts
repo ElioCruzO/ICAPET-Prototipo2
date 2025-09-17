@@ -231,8 +231,7 @@ export async function addCourse(
 
 
 export async function updateCourse(
-
-  contactId: string, // para asegurar que pertenece al contacto
+  contactId: string,
   data: z.infer<typeof courseSchema>
 ) {
   const validatedData = courseSchema.parse(data);
@@ -253,8 +252,13 @@ export async function updateCourse(
   revalidatePath("/cursos");
   revalidatePath(`/contacts/${contactId}`);
 
-  return result;
+  // 🔥 Devolver solo lo necesario y plano
+  return {
+    affectedRows: result.affectedRows,
+    changedRows: result.changedRows,
+  };
 }
+
 
 export async function deleteCourse(dta: number,contactId: string ) {
   try {

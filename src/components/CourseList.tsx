@@ -18,7 +18,7 @@ import { es } from "date-fns/locale";
 import { Calendar } from "lucide-react";
 import { ScrollArea } from "./ui/scroll-area";
 import DeleteCourseDialog from '@/components/DeleteCourseDialog';
-import CourseForm from '@/components/Courseform';
+import EditCourseDialog from '@/components/EditCourseDialog';
 
 
 interface CourseListProps {
@@ -63,6 +63,13 @@ export default function CourseList({ cursos , contactId }: CourseListProps) {
                 )}
               </p>
             </div>
+            
+            <EditCourseDialog
+                contactId={String(contactId)}
+               curso={curso}
+              
+              />
+
 
           
 
