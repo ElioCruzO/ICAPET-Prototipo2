@@ -117,7 +117,7 @@ export default function CourseForm({ contactId, curso, onSaved }: CourseFormProp
           disabled={!dta.trim() || !nombre.trim() || !estado.trim() || !fecha || isPending}
         >
           {isPending && <Loader2 className="animate-spin mr-2" />}
-          {curso ? "Actualizar Curso" : "Guardar Curso"}
+          {curso ?  "Guardar Curso" : "Actualizar Curso"}
         </Button>
       </div>
     </form>
