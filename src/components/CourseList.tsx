@@ -20,14 +20,12 @@ import { ScrollArea } from "./ui/scroll-area";
 import DeleteCourseDialog from '@/components/DeleteCourseDialog';
 import EditCourseDialog from '@/components/EditCourseDialog';
 
-
 interface CourseListProps {
   cursos: Curso[];
   contactId: string;
-  
 }
 
-export default function CourseList({ cursos , contactId }: CourseListProps) {
+export default function CourseList({ cursos, contactId }: CourseListProps) {
   if (cursos.length === 0) {
     return (
       <div className="text-center py-10 border-2 border-dashed rounded-lg mt-4">
@@ -40,50 +38,68 @@ export default function CourseList({ cursos , contactId }: CourseListProps) {
     );
   }
 
+  function getEstadoColor(estado?: string) {
+    switch (estado?.toLowerCase()) {
+      case "activo":
+        return "text-green-600 font-semibold";
+      case "pendiente":
+        return "text-orange-500 font-semibold";
+      case "terminado":
+        return "text-red-600 font-semibold";
+      default:
+        return "text-muted-foreground";
+    }
+  }
+
   return (
-    <ScrollArea className="h-96 mt-4 pr-4">
-      <div className="space-y-6">
-        {cursos.map((curso) => (
-          <div key={curso.dta} className="flex gap-4">
-            <div className="flex-shrink-0">
-              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-secondary">
-                <Calendar className="h-4 w-4 text-secondary-foreground" />
-              </span>
+    <div>
+      <ScrollArea className="h-[300px] mt-4 pr-4">
+        <div className="flex flex-col gap-3 pb-12">
+          {cursos.map((curso) => (
+            <div
+              key={curso.dta}
+              className="rounded-xl border bg-card p-3 shadow-sm hover:shadow-md transition-shadow"
+            >
+              <div className="flex justify-between items-start gap-3">
+                <div className="flex gap-3">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-secondary flex-shrink-0 mt-0.5">
+                    <Calendar className="h-4 w-4 text-secondary-foreground" />
+                  </span>
+                  <div className="min-w-0">
+                    <p className="text-base font-semibold text-foreground truncate">
+                      {curso.nombre}
+                    </p>
+                    <div className="flex items-center gap-2 mt-1 flex-wrap">
+                      <p className={`text-sm ${getEstadoColor(curso.estado)}`}>
+                        Estado: {curso.estado ?? "⛔ (sin valor)"}
+                      </p>
+                      <span className="text-muted-foreground">•</span>
+                      <p className="text-sm text-muted-foreground">
+                        {format(
+                          typeof curso.fecha === "string"
+                            ? parseISO(curso.fecha)
+                            : new Date(curso.fecha),
+                          "d 'de' MMMM, yyyy",
+                          { locale: es }
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="flex gap-2 shrink-0">
+                  <EditCourseDialog contactId={String(contactId)} curso={curso} />
+                  <DeleteCourseDialog dta={Number(curso.dta)} contactId={String(contactId)}>
+                    <Button variant="destructive" size="sm" className="h-8 w-8 p-0">
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </DeleteCourseDialog>
+                </div>
+              </div>
             </div>
-            <div className="flex-1">
-              <p className="text-sm font-medium text-foreground">{curso.nombre}</p>
-              <p className="text-sm text-muted-foreground mt-1">Estado: {curso.estado ?? "⛔ (sin valor)"}</p>
-              <p className="text-sm text-muted-foreground mt-1">
-                {format(
-                  typeof curso.fecha === "string"
-                    ? parseISO(curso.fecha)
-                    : new Date(curso.fecha),
-                  "d 'de' MMMM, yyyy",
-                  { locale: es }
-                )}
-              </p>
-            </div>
-            
-            <EditCourseDialog
-                contactId={String(contactId)}
-               curso={curso}
-              
-              />
-
-
-          
-
-            <DeleteCourseDialog 
-            dta={Number(curso.dta)}
-            contactId={String(contactId)}>
-                <Button variant="destructive" className="w-full">
-                  <Trash2 className="mr-2 h-4 w-4" /> Eliminar
-                </Button>
-            </DeleteCourseDialog>
-            
-          </div>
-        ))}
-      </div>
-    </ScrollArea>
+          ))}
+        </div>
+      </ScrollArea>
+    </div>
   );
 }

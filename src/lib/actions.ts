@@ -174,7 +174,6 @@ export async function addInteraction(
   );
 
   revalidatePath(`/contacts/${contactId}`);
-  return result;
 }
 
 // 📌 Obtener sectores

@@ -69,7 +69,6 @@ const getSectorIdForColor = (contact: any): string => {
   );
 };
 
-
 async function ContactDetails({ id }: { id: string }) {
   const contact = await getContactById(id);
 
@@ -127,6 +126,11 @@ async function ContactDetails({ id }: { id: string }) {
             <Separator />
             <div className="flex gap-2 pt-2">
               <Dialog>
+                <DeleteContactDialog contactId={contact.id}>
+                  <Button variant="destructive" className="w-full">
+                    <Trash2 className="mr-2 h-4 w-4" /> Eliminar
+                  </Button>
+                </DeleteContactDialog>
                 <DialogTrigger asChild>
                   <Button variant="outline" className="w-full">
                     <Edit className="mr-2 h-4 w-4" /> Editar
@@ -139,11 +143,6 @@ async function ContactDetails({ id }: { id: string }) {
                   <ContactForm contact={contact}  />
                 </DialogContent>
               </Dialog>
-              <DeleteContactDialog contactId={contact.id}>
-                <Button variant="destructive" className="w-full">
-                  <Trash2 className="mr-2 h-4 w-4" /> Eliminar
-                </Button>
-              </DeleteContactDialog>
             </div>
           </CardContent>
         </Card>
@@ -189,8 +188,8 @@ async function ContactDetails({ id }: { id: string }) {
                 </label>
               </div>
 
-              {/* Contenedor de contenido con altura fija */}
-              <div className="relative min-h-[500px] border-l border-r border-b rounded-b-lg overflow-hidden">
+              {/* Contenedor de contenido con altura fija mejorada */}
+              <div className="relative min-h-[560px] border-l border-r border-b rounded-b-lg overflow-hidden">
                 {/* Contenido de Interacciones */}
                 <div
                   className="absolute inset-0 p-6 bg-white transition-transform duration-500 ease-in-out transform translate-x-0 opacity-100 overflow-y-auto"
@@ -207,20 +206,23 @@ async function ContactDetails({ id }: { id: string }) {
                     />
                   </div>
                 </div>
+                {/* Contenido de Cursos con padding adicional */}
                 <div
-                  className="absolute inset-0 bg-white transition-transform duration-500 ease-in-out transform translate-x-full opacity-0 flex flex-col"
+                  className="absolute inset-0 bg-white transition-transform duration-500 ease-in-out transform translate-x-full opacity-0 flex flex-col p-6 pb-12"
                   style={{
                     transform: 'translateX(100%)',
                     opacity: 0,
                   }}
                   id="content-listaC"
                 >
-                   <div className="space-y-4">
+                   <div className="space-y-4 h-full flex flex-col">
                     <CourseForm contactId={contact.id} />
-                    <CourseList
-                      cursos={contact.cursos || []} 
-                      contactId={contact.id}
-                    />
+                    <div className="flex-1 min-h-0">
+                      <CourseList
+                        cursos={contact.cursos || []} 
+                        contactId={contact.id}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -325,31 +327,6 @@ export default async function ContactDetailPage({
     #content-cursos, #content-listaC {
       transform: translateX(100%);
       opacity: 0;
-    }
-    
-    /* Personalizar scrollbar */
-    #content-listaC .overflow-y-auto::-webkit-scrollbar {
-      width: 8px;
-    }
-    
-    #content-listaC .overflow-y-auto::-webkit-scrollbar-track {
-      background: #f1f5f9;
-      border-radius: 6px;
-    }
-    
-    #content-listaC .overflow-y-auto::-webkit-scrollbar-thumb {
-      background: #cbd5e1;
-      border-radius: 6px;
-    }
-    
-    #content-listaC .overflow-y-auto::-webkit-scrollbar-thumb:hover {
-      background: #94a3b8;
-    }
-    
-    /* Para Firefox */
-    #content-listaC .overflow-y-auto {
-      scrollbar-width: thin;
-      scrollbar-color: #cbd5e1 #f1f5f9;
     }
   `,
         }}
