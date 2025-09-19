@@ -87,37 +87,47 @@ export default function CourseForm({ contactId, curso, onSaved }: CourseFormProp
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <Input
-        placeholder="Dta del curso"
-        value={dta}
-        onChange={(e) => setDta(e.target.value)}
-        disabled={isPending || Boolean(curso)} // bloquear dta si es edición
-      />
-      <Input
-        placeholder="Nombre del Curso"
-        value={nombre}
-        onChange={(e) => setNombre(e.target.value)}
-        disabled={isPending}
-      />
-      <Input
-        placeholder="Estado del curso"
-        value={estado}
-        onChange={(e) => setEstado(e.target.value)}
-        disabled={isPending}
-      />
-      <Input
-        type="date"
-        value={fecha}
-        onChange={(e) => setFecha(e.target.value)}
-        disabled={isPending}
-      />
+      {/* Grid de inputs */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <Input
+          placeholder="Dta del curso"
+          value={dta}
+          onChange={(e) => setDta(e.target.value)}
+          disabled={isPending || Boolean(curso)} // bloquear dta si es edición
+        />
+        <Input
+          placeholder="Nombre del Curso"
+          value={nombre}
+          onChange={(e) => setNombre(e.target.value)}
+          disabled={isPending}
+        />
+        <select
+          value={estado}
+          onChange={(e) => setEstado(e.target.value)}
+          disabled={isPending}
+          className="w-full rounded-md border border-gray-200 bg-blue-50 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="">Selecciona estado...</option>
+          <option value="activo">Activo</option>
+          <option value="pendiente">Pendiente</option>
+          <option value="terminado">Terminado</option>
+        </select>
+        <Input
+          type="date"
+          value={fecha}
+          onChange={(e) => setFecha(e.target.value)}
+          disabled={isPending}
+        />
+      </div>
+
+      {/* Botón alineado a la derecha */}
       <div className="flex justify-end">
         <Button
           type="submit"
           disabled={!dta.trim() || !nombre.trim() || !estado.trim() || !fecha || isPending}
         >
           {isPending && <Loader2 className="animate-spin mr-2" />}
-          {curso ?  "Guardar Curso" : "Actualizar Curso"}
+          {curso ? "Actualizar Curso" : "Guardar Curso"}
         </Button>
       </div>
     </form>
