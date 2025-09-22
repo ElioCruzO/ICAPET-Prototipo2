@@ -144,12 +144,17 @@ export async function updateContact(
 
     revalidatePath('/contacts');
     revalidatePath(`/contacts/${id}`);
-    return result;
+    revalidatePath('/contacts');
+    return { success: true, insertId: result.insertId };
   } catch (error: any) {
-    console.error('Error actualizando contacto:', error);
-    throw new Error(
-      error.sqlMessage || error.message || 'No se pudo actualizar el contacto.'
-    );
+    console.error('Error agregando contacto:', error);
+    return {
+      success: false,
+      error:
+        error.sqlMessage ||
+        error.message ||
+        'No se pudo agregar el contacto.',
+    };
   }
 }
 
