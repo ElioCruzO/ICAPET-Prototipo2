@@ -34,7 +34,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import CourseList from "@/components/CourseList";
 
-// Mapeo de sectores a colores
+// Mapeo de sectores a colores (usando ID o nombre)
 const sectorColors: Record<string, string> = {
   'autoridades-municipales': 'bg-blue-500',
   'educacion-media-superior': 'bg-green-500',
@@ -49,25 +49,25 @@ const sectorColors: Record<string, string> = {
   'otros': 'bg-gray-500'
 };
 
-// Función para obtener el color según el sector
+// Función para obtener el color según el sector (EXACTAMENTE IGUAL QUE EN CONTACTCARD)
 const getSectorColor = (sectorId: string, sectorName?: string): string => {
+  // Primero intenta por ID, luego por nombre, luego default
   return sectorColors[sectorId] || 
          (sectorName ? sectorColors[sectorName.toLowerCase().replace(/\s+/g, '-')] : 'bg-gray-500') || 
          'bg-gray-500';
 };
 
-// Función para obtener el nombre del sector
+// Función para obtener el nombre del sector (EXACTAMENTE IGUAL QUE EN CONTACTCARD)
 const getSectorName = (contact: any): string => {
   return contact.sector?.nombre || 'Sector no especificado';
 };
 
-// Función para obtener el ID del sector para colores
+// Función para obtener el ID del sector para colores (EXACTAMENTE IGUAL QUE EN CONTACTCARD)
 const getSectorIdForColor = (contact: any): string => {
-  return (
-    contact.sector?.id ||
-    contact.sector?.nombre?.toLowerCase().replace(/\s+/g, '-') ||
-    'otros'
-  );
+  // Si tienes IDs consistentes, usa el ID. Si no, usa el nombre normalizado
+  return contact.sector?.id || 
+         contact.sector?.nombre?.toLowerCase().replace(/\s+/g, '-') || 
+         'otros';
 };
 
 async function ContactDetails({ id }: { id: string }) {
@@ -77,14 +77,28 @@ async function ContactDetails({ id }: { id: string }) {
     notFound();
   }
 
+  // DEBUG: Ver qué contiene realmente contact.sector
+  console.log('🔍 DEBUG Contact sector:', contact.sector);
+  console.log('🔍 DEBUG Sector type:', typeof contact.sector);
+  if (contact.sector && typeof contact.sector === 'object') {
+    console.log('🔍 DEBUG Sector keys:', Object.keys(contact.sector));
+    console.log('🔍 DEBUG Sector id:', contact.sector.id);
+    console.log('🔍 DEBUG Sector nombre:', contact.sector.nombre);
+  }
+
   const initials = contact.name
     .split(' ')
     .map((n) => n[0])
     .join('');
 
+  // USAR EXACTAMENTE LA MISMA LÓGICA QUE EN CONTACTCARD
   const sectorName = getSectorName(contact);
   const sectorIdForColor = getSectorIdForColor(contact);
-  const sectorColor = getSectorColor(getSectorIdForColor(contact), contact.sector?.toString());
+  const sectorColor = getSectorColor(sectorIdForColor, contact.sector?.nombre);
+
+  console.log('🎨 DEBUG Sector ID for color:', sectorIdForColor);
+  console.log('🎨 DEBUG Sector name for color:', contact.sector?.nombre);
+  console.log('🎨 DEBUG Final sector color:', sectorColor);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
