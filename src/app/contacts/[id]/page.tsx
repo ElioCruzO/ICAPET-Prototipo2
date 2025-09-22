@@ -1,5 +1,6 @@
 import { getContacts, getContactById, getCoursesByContact } from "@/lib/data";
 import { deleteContact, deleteCourse } from "@/lib/actions";
+import EditContactDialog from "@/components/EditContactDialog";
 import {
   ArrowLeft,
   Mail,
@@ -37,7 +38,7 @@ import CourseList from "@/components/CourseList";
 const sectorColors: Record<string, string> = {
   'autoridades-municipales': 'bg-blue-500',
   'educacion-media-superior': 'bg-green-500',
-  'reclusorios' : 'bg-red-500',
+  'reclusorios': 'bg-red-500',
   'gobierno-estado': 'bg-purple-500',
   'gobierno-federal': 'bg-indigo-500',
   'oficinas-centrales': 'bg-yellow-500',
@@ -45,7 +46,7 @@ const sectorColors: Record<string, string> = {
   'organizaciones-productivas': 'bg-teal-500',
   'empresas': 'bg-cyan-500',
   'organizaciones-empresariales': 'bg-pink-500',
-  'otros': 'bg-gray-500',
+  'otros': 'bg-gray-500'
 };
 
 // Función para obtener el color según el sector
@@ -125,24 +126,12 @@ async function ContactDetails({ id }: { id: string }) {
             </div>
             <Separator />
             <div className="flex gap-2 pt-2">
-              <Dialog>
-                <DeleteContactDialog contactId={contact.id}>
-                  <Button variant="destructive" className="w-full">
-                    <Trash2 className="mr-2 h-4 w-4" /> Eliminar
-                  </Button>
-                </DeleteContactDialog>
-                <DialogTrigger asChild>
-                  <Button variant="outline" className="w-full">
-                    <Edit className="mr-2 h-4 w-4" /> Editar
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[425px]">
-                  <DialogHeader>
-                    <DialogTitle>Editar Contacto</DialogTitle>
-                  </DialogHeader>
-                  <ContactForm contact={contact}  />
-                </DialogContent>
-              </Dialog>
+             <DeleteContactDialog contactId={contact.id}>
+                <Button variant="destructive" className="w-full">
+                  <Trash2 className="mr-2 h-4 w-4" /> Eliminar
+                </Button>
+              </DeleteContactDialog>
+              <EditContactDialog contact={contact} />
             </div>
           </CardContent>
         </Card>
