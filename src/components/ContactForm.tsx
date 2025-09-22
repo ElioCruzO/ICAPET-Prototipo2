@@ -15,10 +15,9 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { addContact, updateContact } from '@/lib/actions';
+import { addContact, updateContact, getSectores } from '@/lib/actions';
 import { useEffect, useState } from 'react';
 import { Loader2 } from 'lucide-react';
-import SectorList from './SectorList';
 
 interface ContactFormProps {
   contact?: Contact;
@@ -41,6 +40,8 @@ const contactSchema = z.object({
 export default function ContactForm({ contact, setOpen }: ContactFormProps) {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [sectores, setSectores] = useState<{ id: number; nombre: string }[]>([]);
+  const [isLoadingSectores, setIsLoadingSectores] = useState(true);
 
   const form = useForm<z.infer<typeof contactSchema>>({
     resolver: zodResolver(contactSchema),
@@ -49,23 +50,49 @@ export default function ContactForm({ contact, setOpen }: ContactFormProps) {
       email: contact?.email || '',
       phone: contact?.phone || '',
       location: contact?.location || '',
-      sector: contact?.id || 0,
+      // ✅ Establece el sector correctamente
+      sector: contact?.sector || parseInt(contact?.sectorId?.toString() || '0') || 0,
       cargo: contact?.cargo || '',
       folio: contact?.folio || '',
-      fecha_vinculacion: contact?.fecha_vinculacion || '',
+      fecha_vinculacion: contact?.fechaVinculacion || '',
     },
   });
 
+  // ✅ Cargar sectores al montar el componente
   useEffect(() => {
-    console.log(form.getValues('sector'));
-    console.log(form);
-    
-  }, [form]);
+    const fetchSectores = async () => {
+      try {
+        setIsLoadingSectores(true);
+        const response = await getSectores();
+        
+        // ✅ Serializar los datos para evitar el error de prototipos
+        const sectoresPlanos = response.map((sector: any) => ({
+          id: Number(sector.id),
+          nombre: String(sector.nombre)
+        }));
+        
+        setSectores(sectoresPlanos);
+        console.log('Sectores cargados:', sectoresPlanos);
+      } catch (error) {
+        console.error('Error cargando sectores:', error);
+        toast({
+          title: 'Error',
+          description: 'No se pudieron cargar los sectores.',
+          variant: 'destructive',
+        });
+      } finally {
+        setIsLoadingSectores(false);
+      }
+    };
 
+    fetchSectores();
+  }, [toast]);
 
   async function onSubmit(values: z.infer<typeof contactSchema>) {
     setIsSubmitting(true);
     try {
+      console.log('Valores a enviar:', values);
+      
       if (contact) {
         await updateContact(contact.id, values);
         toast({
@@ -80,9 +107,9 @@ export default function ContactForm({ contact, setOpen }: ContactFormProps) {
         });
       }
 
-      // Cierra el modal/pestaña después de guardar
       setOpen?.(false);
     } catch (error) {
+      console.error('Error al guardar contacto:', error);
       toast({
         title: 'Error',
         description: 'No se pudo guardar el contacto. Inténtelo de nuevo.',
@@ -156,18 +183,33 @@ export default function ContactForm({ contact, setOpen }: ContactFormProps) {
           )}
         />
 
-        {/* Sector usando SectorList */}
+        {/* ✅ Sector con select nativo */}
         <FormField
           control={form.control}
           name="sector"
-          render={() => (
+          render={({ field }) => (
             <FormItem>
               <FormLabel>Sector</FormLabel>
               <FormControl>
-                <SectorList
-                  defaultValue={form.getValues('sector')}
-                  onSelect={(sector) => form.setValue('sector', sector)}
-                />
+                <select
+                  value={field.value || ''}
+                  onChange={(e) => {
+                    const value = e.target.value ? parseInt(e.target.value) : 0;
+                    console.log('Sector seleccionado:', value);
+                    field.onChange(value);
+                  }}
+                  disabled={isLoadingSectores || isSubmitting}
+                  className="border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary w-full bg-transparent"
+                >
+                  <option value="">
+                    {isLoadingSectores ? 'Cargando sectores...' : 'Selecciona un sector...'}
+                  </option>
+                  {sectores.map((sector) => (
+                    <option key={sector.id} value={sector.id}>
+                      {sector.nombre}
+                    </option>
+                  ))}
+                </select>
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -221,7 +263,7 @@ export default function ContactForm({ contact, setOpen }: ContactFormProps) {
 
         {/* Botones */}
         <div className="flex justify-end gap-2 pt-4">
-          <Button type="submit" disabled={isSubmitting}>
+          <Button type="submit" disabled={isSubmitting || isLoadingSectores}>
             {isSubmitting && <Loader2 className="animate-spin mr-2" />}
             {contact ? 'Guardar Cambios' : 'Añadir Contacto'}
           </Button>

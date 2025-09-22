@@ -1,19 +1,11 @@
 // src/app/contacts/page.tsx
 import { Suspense } from "react";
-import { Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import ContactList from "@/components/ContactList";
 import ContactForm from "@/components/ContactForm";
 import { Skeleton } from "@/components/ui/skeleton";
 import SearchBar from "@/components/SearchBar";
 import SectorFilter from "@/components/SectorFilter";
+import AddContactDialog from "@/components/AddContactDialog"; // ← IMPORTAR NUEVO COMPONENTE
 import { getContacts } from "@/lib/data";
 
 // 👉 Este componente obtiene los contactos desde la DB
@@ -44,7 +36,7 @@ function ContactsSkeleton() {
   );
 }
 
-// 👉 Página principal de contactos
+// 👉 Página principal de contactos (SIGUE SIENDO SERVER COMPONENT)
 export default async function ContactsPage(props: {
   searchParams: Promise<{ query?: string }>;
 }) {
@@ -62,20 +54,8 @@ export default async function ContactsPage(props: {
           {/* Barra de búsqueda */}
           <SearchBar placeholder="Buscar contactos..." />
 
-          {/* Botón para añadir contacto */}
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="mr-2 h-4 w-4" /> Añadir Contacto
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px] max-h-[95vh] overflow-y-scroll">
-              <DialogHeader>
-                <DialogTitle>Añadir Nuevo Contacto</DialogTitle>
-              </DialogHeader>
-              <ContactForm />
-            </DialogContent>
-          </Dialog>
+          {/* ✅ REEMPLAZAR EL DIÁLOGO ORIGINAL CON EL COMPONENTE CLIENTE */}
+          <AddContactDialog />
         </div>
       </div>
 
