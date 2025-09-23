@@ -8,12 +8,12 @@ import { Contact, Interaction } from './types';
 // Esquema de validación de contacto (folio ahora es string)
 const contactSchema = z.object({
   name: z.string().min(2),
-  email: z.string().email(),
+  email: z.string().email().optional().or(z.literal('')),
   phone: z.string().min(10),
   location: z.string().min(2),
   sector: z.number(),
   cargo: z.string().min(2),
-  folio: z.string().optional(),
+  folio: z.string().optional().or(z.literal('')),
   fechaVinculacion: z.string().optional(), // YYYY-MM-DD
 });
 
@@ -38,24 +38,8 @@ export async function addContact(
   try {
     const validatedData = contactSchema.parse(data);
     console.log("🚀 ~ validatedData:", validatedData)
-    // const sectorName = validatedData.sector;
-
-    // Buscar o crear sector
-    // const [sectorRows]: any = await db.query(
-    //   'SELECT id FROM sectores WHERE LOWER(nombre) = LOWER(?)',
-    //   [sectorName]
-    // );
 
     let sectorId: number = validatedData.sector;
-    // if (sectorRows.length > 0) {
-    //   sectorId = sectorRows[0].id;
-    // } else {
-    //   const [result]: any = await db.execute(
-    //     'INSERT INTO sectores (nombre) VALUES (?)',
-    //     [sectorName]
-    //   );
-    //   sectorId = result.insertId;
-    // }
 
     // Insertar contacto
     const [result]: any = await db.execute(
@@ -65,7 +49,7 @@ export async function addContact(
       [
         validatedData.name,
         validatedData.phone,
-        validatedData.email,
+        validatedData.email || '',
         validatedData.location,
         sectorId,
         validatedData.cargo,
@@ -101,23 +85,7 @@ export async function updateContact(
 
     // Si viene sector, buscar o crear
     if (validatedData.sector) {
-      // const sectorName = validatedData.sector;
-      // const [sectorRows]: any = await db.query(
-      //   'SELECT id FROM sectores WHERE LOWER(nombre) = LOWER(?)',
-      //   [sectorName]
-      // );
-
       let sectorId: number = validatedData.sector;
-      // if (sectorRows.length > 0) {
-      //   sectorId = sectorRows[0].id;
-      // } else {
-      //   const [result]: any = await db.execute(
-      //     'INSERT INTO sectores (nombre) VALUES (?)',
-      //     [sectorName]
-      //   );
-      //   sectorId = result.insertId;
-      // }
-
       updateFields.push('sector_id = ?');
       updateValues.push(sectorId);
       delete validatedData.sector;
@@ -128,6 +96,10 @@ export async function updateContact(
       if (key === 'fechaVinculacion') {
         updateFields.push('fecha_vinculacion = ?');
         updateValues.push(validatedData[key as keyof typeof validatedData]);
+      }  else if (key === 'email' || key === 'folio') {
+        updateFields.push(`${key} = ?`);
+        // ✅ Para email y folio, usar string vacío si es undefined
+        updateValues.push(validatedData[key as keyof typeof validatedData] || '');
       } else {
         updateFields.push(`${key} = ?`);
         updateValues.push(validatedData[key as keyof typeof validatedData]);
@@ -144,7 +116,6 @@ export async function updateContact(
 
     revalidatePath('/contacts');
     revalidatePath(`/contacts/${id}`);
-    revalidatePath('/contacts');
     return { success: true, insertId: result.insertId };
   } catch (error: any) {
     console.error('Error agregando contacto:', error);
