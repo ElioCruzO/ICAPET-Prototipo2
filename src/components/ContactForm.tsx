@@ -26,16 +26,21 @@ interface ContactFormProps {
 
 const contactSchema = z.object({
   name: z.string().min(2, 'El nombre debe tener al menos 2 caracteres.'),
-  email: z.string().email('Dirección de correo electrónico inválida.'),
+  // ✅ Email opcional pero convertido a string vacío si es null/undefined
+  email: z.string().email('Dirección de correo electrónico inválida.').optional().or(z.literal('')),
   phone: z.string().min(10, 'El número de teléfono es demasiado corto.'),
   location: z.string().min(2, 'La ubicación es obligatoria.'),
   sector: z.number(),
   cargo: z.string().min(2, 'El cargo es obligatorio.'),
-  folio: z.string().min(1, 'El folio es obligatorio.'),
+  // ✅ Folio opcional pero convertido a string vacío si es null/undefined
+  folio: z.string().optional().or(z.literal('')),
   fecha_vinculacion: z
     .string()
     .min(1, 'La fecha de vinculación es obligatoria.'),
 });
+
+// ✅ Tipo para los valores del formulario
+type ContactFormValues = z.infer<typeof contactSchema>;
 
 export default function ContactForm({ contact, setOpen }: ContactFormProps) {
   const { toast } = useToast();
@@ -43,14 +48,13 @@ export default function ContactForm({ contact, setOpen }: ContactFormProps) {
   const [sectores, setSectores] = useState<{ id: number; nombre: string }[]>([]);
   const [isLoadingSectores, setIsLoadingSectores] = useState(true);
 
-  const form = useForm<z.infer<typeof contactSchema>>({
+  const form = useForm<ContactFormValues>({
     resolver: zodResolver(contactSchema),
     defaultValues: {
       name: contact?.name || '',
       email: contact?.email || '',
       phone: contact?.phone || '',
       location: contact?.location || '',
-      // ✅ Establece el sector correctamente
       sector: contact?.sector || parseInt(contact?.sectorId?.toString() || '0') || 0,
       cargo: contact?.cargo || '',
       folio: contact?.folio || '',
@@ -65,7 +69,6 @@ export default function ContactForm({ contact, setOpen }: ContactFormProps) {
         setIsLoadingSectores(true);
         const response = await getSectores();
         
-        // ✅ Serializar los datos para evitar el error de prototipos
         const sectoresPlanos = response.map((sector: any) => ({
           id: Number(sector.id),
           nombre: String(sector.nombre)
@@ -88,19 +91,26 @@ export default function ContactForm({ contact, setOpen }: ContactFormProps) {
     fetchSectores();
   }, [toast]);
 
-  async function onSubmit(values: z.infer<typeof contactSchema>) {
+  async function onSubmit(values: ContactFormValues) {
     setIsSubmitting(true);
     try {
       console.log('Valores a enviar:', values);
       
+      // ✅ Convertir valores vacíos a string vacío en lugar de null
+      const cleanedValues = {
+        ...values,
+        email: values.email || '', // Convertir a string vacío en lugar de null
+        folio: values.folio || '', // Convertir a string vacío en lugar de null
+      };
+      
       if (contact) {
-        await updateContact(contact.id, values);
+        await updateContact(contact.id, cleanedValues);
         toast({
           title: 'Contacto Actualizado',
           description: `${values.name} ha sido actualizado exitosamente.`,
         });
       } else {
-        await addContact(values);
+        await addContact(cleanedValues);
         toast({
           title: 'Contacto Añadido',
           description: `${values.name} ha sido añadido exitosamente.`,
@@ -138,15 +148,15 @@ export default function ContactForm({ contact, setOpen }: ContactFormProps) {
           )}
         />
 
-        {/* Email */}
+        {/* Email - Ahora opcional */}
         <FormField
           control={form.control}
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel>Email (Opcional)</FormLabel>
               <FormControl>
-                <Input placeholder="john.doe@example.com" {...field} />
+                <Input placeholder="john.doe@example.com" {...field} value={field.value || ''} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -183,7 +193,7 @@ export default function ContactForm({ contact, setOpen }: ContactFormProps) {
           )}
         />
 
-        {/* ✅ Sector con select nativo */}
+        {/* Sector */}
         <FormField
           control={form.control}
           name="sector"
@@ -231,15 +241,15 @@ export default function ContactForm({ contact, setOpen }: ContactFormProps) {
           )}
         />
 
-        {/* Folio */}
+        {/* Folio - Ahora opcional */}
         <FormField
           control={form.control}
           name="folio"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Folio</FormLabel>
+              <FormLabel>Folio (Opcional)</FormLabel>
               <FormControl>
-                <Input placeholder="F12345" {...field} />
+                <Input placeholder="F12345" {...field} value={field.value || ''} />
               </FormControl>
               <FormMessage />
             </FormItem>
